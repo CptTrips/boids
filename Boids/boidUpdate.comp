@@ -1,0 +1,249 @@
+#version 450
+
+#define timeStep 0.01667
+
+#define cohesionConstant 2.0
+
+#define alignmentConstant 2.0
+
+#define separationConstant 1.0
+
+#define preferredDistance 0.03
+
+#define cutoffDistance 0.1
+
+#define speed 0.2
+
+layout(std430, push_constant) uniform pushConstants {
+    uint flockSize;
+};
+
+layout(std430, binding = 0) readonly buffer posInSSBO {
+    vec2 posIn[];
+};
+
+layout(std430, binding = 1) readonly buffer velInSSBO {
+    vec2 velIn[];
+};
+
+layout(std430, binding = 2) buffer posOutSSBO {
+    vec2 posOut[];
+};
+
+layout(std430, binding = 3) buffer velOutSSBO {
+    vec2 velOut[];
+};
+
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+float cutoff(vec2 r)
+{
+
+    if (length(r) < cutoffDistance)
+        return 1.0;
+    else
+        return 0.0;
+}
+
+vec2 rot90(vec2 v)
+{
+
+    return vec2(v.y, -v.x);
+}
+
+vec2 cutoffDisplacement(uint i, uint index)
+{
+
+    vec2 r = posIn[i] - posIn[index];
+
+    return r * cutoff(r);
+}
+
+vec2 localAvgPos(uint index)
+{
+
+    vec2 x = vec2(0, 0);
+
+    uint n = 0;
+
+    for (uint i = 0; i < index; i++)
+    {
+
+        vec2 dx = cutoffDisplacement(i, index);    
+
+        if (any(greaterThan(dx, vec2(0, 0))))
+        {
+
+			x += dx;
+            n++;
+		}
+    }
+
+    for (uint i = index + 1; i < flockSize; i++)
+    {
+
+        vec2 dx = cutoffDisplacement(i, index);    
+
+        if (any(greaterThan(dx, vec2(0, 0))))
+        {
+
+			x += dx;
+            n++;
+		}
+    }
+
+    n = max(1, n);
+
+    return x / n;
+}
+
+float steerToDir(vec2 vel, vec2 tgt)
+{
+
+    return sign(cross(vec3(tgt, 0), vec3(vel, 0)).z)
+        * sqrt(0.5 * (1.0 - dot(normalize(vel), tgt)));
+}
+
+vec2 preferredPos(vec2 r)
+{
+
+    return r * (2 * smoothstep(-preferredDistance / 2, preferredDistance / 2, preferredDistance - length(r)) - 1);
+}
+
+float cohesionSteer(uint index)
+{
+
+    vec2 cohesionDir = normalize(velIn[index] + speed * localAvgPos(index));
+
+    return cohesionConstant * steerToDir(velIn[index], cohesionDir);
+}
+
+vec2 localAvgVel(uint index)
+{
+
+    vec2 v = vec2(0, 0);
+
+    uint n = 0;
+
+    for (uint i = 0; i < index; i++)
+    {
+
+        if (cutoff(posIn[index] - posIn[i]) > 0)
+		{
+
+			v += velIn[i];
+
+            n++;
+        }
+    }
+
+    for (uint i = index + 1; i < flockSize; i++)
+    {
+
+        if (cutoff(posIn[index] - posIn[i]) > 0)
+		{
+
+			v += velIn[i];
+
+            n++;
+        }
+    }
+
+    n = max(1, n);
+
+    return v / n;
+}
+
+float alignmentSteer(uint index)
+{
+
+    return alignmentConstant * steerToDir(velIn[index], localAvgVel(index));
+}
+
+vec2 closestBoid(uint index)
+{
+
+    vec2 v = vec2(100, 100);
+
+    float d = 100;
+
+    for (uint i = 0; i < index; i++)
+    {
+        
+        vec2 displacement = posIn[i] - posIn[index];
+
+        if (length(displacement) < d)
+        {
+
+            v = displacement;
+
+            d = length(displacement);
+		}
+    }
+
+    for (uint i = index + 1; i < flockSize; i++)
+    {
+
+        vec2 displacement = posIn[i] - posIn[index];
+
+        if (length(displacement) < d)
+        {
+
+            v = displacement;
+
+            d = length(displacement);
+		}
+    }
+
+    return v;
+}
+
+float separationSteer(uint index)
+{
+
+    vec2 closest = closestBoid(index);
+
+    return separationConstant * smoothstep(-1.5 * preferredDistance, -0.5 * preferredDistance, -length(closest)) * steerToDir(velIn[index], -normalize(closest));
+}
+
+vec2 velocityUpdate(uint index)
+{
+
+    float steer = cohesionSteer(index) + alignmentSteer(index) + separationSteer(index);
+
+    steer = clamp(steer, -0.1 / timeStep, 0.1 / timeStep);
+
+    return speed * normalize(velIn[index] + timeStep * steer * rot90(velIn[index]));
+}
+
+float circular(float x)
+{
+
+    if (x > 1)
+        x -= 2;
+    else if (x < -1)
+        x += 2;
+
+    return x;
+}
+
+vec2 tile(vec2 v)
+{
+
+    return vec2(circular(v.x), circular(v.y));
+}
+
+void main()
+{
+
+    uint index = gl_GlobalInvocationID.x;
+
+    if (index >= flockSize)
+        return;
+
+    posOut[index] = posIn[index] + timeStep * velIn[index];
+
+    posOut[index] = tile(posOut[index]);
+
+    velOut[index] = velocityUpdate(index);
+}

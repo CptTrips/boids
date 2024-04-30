@@ -1,0 +1,3 @@
+[submodule "VulkanWrapper"]
+	path = VulkanWrapper
+	url = https://github.com/CptTrips/VulkanWrapper.git
