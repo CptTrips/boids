@@ -8,7 +8,7 @@ const VkPushConstantRange FlockInitialiser::pushConstantRange
 {
     VK_SHADER_STAGE_COMPUTE_BIT,
     0,
-    sizeof(uint32_t)
+    sizeof(uint32_t) + 3 * sizeof(float)
 };
 
 const VkDescriptorSetLayoutBinding FlockInitialiser::posBinding
@@ -91,11 +91,15 @@ std::vector<DescriptorSetLayout> FlockInitialiser::makeInitShaderDescriptorSetLa
 void FlockInitialiser::initialise(CommandBuffer& commandBuffer, DeviceBuffer& posBuffer, DeviceBuffer& velBuffer)
 {
 
+    float cohesion{ 0.0 };
+
     descriptorSets = descriptorPool.makeDescriptorSets(makeDescriptorSetInfos(posBuffer, velBuffer));
 
     bindObjects(commandBuffer);
 
     vkCmdPushConstants(commandBuffer.vk(), initPipeline.getLayout().vk(), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(uint32_t), &flockSize);
+
+    vkCmdPushConstants(commandBuffer.vk(), initPipeline.getLayout().vk(), VK_SHADER_STAGE_COMPUTE_BIT, sizeof(uint32_t), sizeof(float), &cohesion);
 
     vkCmdDispatch(commandBuffer.vk(), groupCount, 1, 1);
 }

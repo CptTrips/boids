@@ -2,11 +2,11 @@
 
 #define timeStep 0.01667
 
-#define cohesionConstant 2.0
+//#define cohesionConstant 2.0
 
-#define alignmentConstant 2.0
+//#define alignmentConstant 2.0
 
-#define separationConstant 1.0
+//#define separationConstant 1.0
 
 #define preferredDistance 0.03
 
@@ -16,6 +16,9 @@
 
 layout(std430, push_constant) uniform pushConstants {
     uint flockSize;
+    float cohesionConstant;
+    float alignmentConstant;
+    float separationConstant;
 };
 
 layout(std430, binding = 0) readonly buffer posInSSBO {

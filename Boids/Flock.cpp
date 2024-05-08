@@ -52,9 +52,9 @@ const VkDescriptorSetLayoutBinding Flock::outVelBinding
 	
 const VkPushConstantRange Flock::pushConstantRange
 {
-    VK_SHADER_STAGE_COMPUTE_BIT,
-    0,
-    sizeof(uint32_t)
+	VK_SHADER_STAGE_COMPUTE_BIT,
+	0,
+	sizeof(uint32_t) + 3 * sizeof(float)
 };
 
 void Flock::bindObjects(CommandBuffer& commandBuffer) const
@@ -202,16 +202,22 @@ void Flock::setCohesion(CommandBuffer& commandBuffer, float cohesion)
 {
 
 	this->cohesion = cohesion;
+
+    vkCmdPushConstants(commandBuffer.vk(), pipeline.getLayout().vk(), VK_SHADER_STAGE_COMPUTE_BIT, sizeof(uint32_t), sizeof(float), &cohesion);
 }
 
 void Flock::setAlignment(CommandBuffer& commandBuffer, float alignment)
 {
 
 	this->alignment = alignment;
+
+    vkCmdPushConstants(commandBuffer.vk(), pipeline.getLayout().vk(), VK_SHADER_STAGE_COMPUTE_BIT, sizeof(uint32_t) + sizeof(float), sizeof(float), &alignment);
 }
 
 void Flock::setSeparation(CommandBuffer& commandBuffer, float separation)
 {
 
 	this->separation = separation;
+
+    vkCmdPushConstants(commandBuffer.vk(), pipeline.getLayout().vk(), VK_SHADER_STAGE_COMPUTE_BIT, sizeof(uint32_t) + 2*sizeof(float), sizeof(float), &separation);
 }
