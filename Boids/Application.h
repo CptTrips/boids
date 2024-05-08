@@ -36,7 +36,7 @@ class Application
 
     Flock flock;
 
-    void processUIEvents();
+    void processUIEvents(CommandBuffer& commandBuffer);
 
 
 public:

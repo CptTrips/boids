@@ -32,6 +32,8 @@ class Flock
 
     uint64_t step{ 0 };
 
+    float cohesion, alignment, separation;
+
     Device& device;
 
     DescriptorPool descriptorPool;
@@ -72,5 +74,11 @@ public:
     DeviceBuffer& getPositionBuffer();
 
     uint32_t getBoidCount() const;
+
+    void setCohesion(CommandBuffer& commandBuffer, float cohesion);
+
+    void setAlignment(CommandBuffer& commandBuffer, float alignment);
+
+    void setSeparation(CommandBuffer& commandBuffer, float separation);
 };
 

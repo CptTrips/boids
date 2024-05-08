@@ -197,3 +197,21 @@ uint32_t Flock::getBoidCount() const
 
 	return boidCount;
 }
+
+void Flock::setCohesion(CommandBuffer& commandBuffer, float cohesion)
+{
+
+	this->cohesion = cohesion;
+}
+
+void Flock::setAlignment(CommandBuffer& commandBuffer, float alignment)
+{
+
+	this->alignment = alignment;
+}
+
+void Flock::setSeparation(CommandBuffer& commandBuffer, float separation)
+{
+
+	this->separation = separation;
+}
