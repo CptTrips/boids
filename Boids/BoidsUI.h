@@ -5,7 +5,7 @@
 struct UIState
 {
 
-    float cohesion, alignment, separation;
+    float *cohesion, *alignment, *separation;
 };
 
 class BoidsUI : public UI
@@ -18,7 +18,5 @@ public:
     BoidsUI(UIState state);
 
     virtual void draw();
-
-    UIState getState() const;
 };
 

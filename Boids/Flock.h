@@ -19,8 +19,21 @@ struct Boid
     glm::vec2 velocity;
 };
 
+struct PushConstants
+{
+
+    uint32_t boidCount;
+    float cohesion, alignment, separation;
+};
+
 class Flock
 {
+
+public:
+
+    PushConstants parameters;
+
+private:
 
     static constexpr uint32_t INVOCATIONS{ 256 };
 
@@ -32,13 +45,11 @@ class Flock
 
     uint64_t step{ 0 };
 
-    float cohesion, alignment, separation;
-
     Device& device;
 
     DescriptorPool descriptorPool;
 
-    uint32_t boidCount, groupCount;
+    uint32_t groupCount;
 
     std::vector<DeviceBuffer> posBuffers;
 
@@ -60,13 +71,14 @@ class Flock
 
     void initBuffers();
 
-    uint32_t calcGroupCount();
+    uint32_t calcGroupCount(uint32_t boidCount);
 
     std::vector<DescriptorSetInfo> makeDescriptorSetInfos() const;
 
     std::vector<DescriptorSetLayout> makeUpdateShaderDescriptorSetLayouts() const;
 
 public:
+
     Flock(Device& device, uint32_t boidCount, const std::string& computeShaderPath, const std::string& initShaderPath);
 
     void update(CommandBuffer& commandBuffer);
@@ -74,11 +86,5 @@ public:
     DeviceBuffer& getPositionBuffer();
 
     uint32_t getBoidCount() const;
-
-    void setCohesion(CommandBuffer& commandBuffer, float cohesion);
-
-    void setAlignment(CommandBuffer& commandBuffer, float alignment);
-
-    void setSeparation(CommandBuffer& commandBuffer, float separation);
 };
 

@@ -5,23 +5,11 @@
 #include <chrono>
 #include <thread>
 
-void Application::processUIEvents(CommandBuffer& commandBuffer)
-{
-
-	UIState state{ ui.getState() };
-
-	flock.setCohesion(commandBuffer, state.cohesion);
-
-	flock.setSeparation(commandBuffer, state.separation);
-
-	flock.setAlignment(commandBuffer, state.alignment);
-}
-
 Application::Application(ApplicationOptions options)
     : context()
-	, ui({ 2.f, 2.f, 1.f })
 	, renderer(RendererOptions(context, options.vertexShaderPath, options.fragmentShaderPath), options.flockSize)
 	, flock(context.device, options.flockSize, options.computeShaderPath, options.initShaderPath)
+	, ui({ &(flock.parameters.cohesion), &(flock.parameters.alignment), &(flock.parameters.separation) })
 {}
 
 void Application::run()
@@ -35,8 +23,6 @@ void Application::run()
 		{
 
 			CommandBuffer flockCommands{ context.device.makeSingleUseCommandBuffer() };
-
-            processUIEvents(flockCommands);
 
 			flock.update(flockCommands);
 

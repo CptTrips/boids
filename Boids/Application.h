@@ -30,13 +30,11 @@ class Application
 
     VulkanContext context;
 
-    BoidsUI ui;
-
     FlockRenderer renderer;
 
     Flock flock;
 
-    void processUIEvents(CommandBuffer& commandBuffer);
+    BoidsUI ui;
 
 
 public:

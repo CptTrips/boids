@@ -68,7 +68,7 @@ void Flock::bindObjects(CommandBuffer& commandBuffer) const
 std::vector<DeviceBuffer> Flock::makeBuffers() const
 {
 
-	VkDeviceSize bufferSize{ boidCount * sizeof(glm::vec2) };
+	VkDeviceSize bufferSize{ parameters.boidCount * sizeof(glm::vec2) };
 
 	VkBufferUsageFlags usage{
 		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT
@@ -98,7 +98,7 @@ void Flock::initBuffers()
 	device.graphicsQueueWaitIdle();
 }
 
-uint32_t Flock::calcGroupCount()
+uint32_t Flock::calcGroupCount(uint32_t boidCount)
 {
 
     return std::max(1u, boidCount / INVOCATIONS);
@@ -158,10 +158,10 @@ std::vector<DescriptorSetLayout> Flock::makeUpdateShaderDescriptorSetLayouts() c
 
 
 Flock::Flock(Device& device, uint32_t boidCount, const std::string& computeShaderPath, const std::string& initShaderPath)
-	: device(device)
+	: parameters{ boidCount, 2.f, 1.f, 1.f }
+	, device(device)
 	, descriptorPool(device, requiredDescriptorTypes, 100)
-	, boidCount(boidCount)
-	, groupCount(calcGroupCount())
+	, groupCount(calcGroupCount(boidCount))
 	, posBuffers(makeBuffers())
 	, velBuffers(makeBuffers())
 	, updateShaderDescriptorSetLayouts(makeUpdateShaderDescriptorSetLayouts())
@@ -179,7 +179,7 @@ void Flock::update(CommandBuffer& commandBuffer)
 
     bindObjects(commandBuffer);
 
-    vkCmdPushConstants(commandBuffer.vk(), pipeline.getLayout().vk(), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(uint32_t), &boidCount);
+    vkCmdPushConstants(commandBuffer.vk(), pipeline.getLayout().vk(), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(PushConstants), &parameters);
 
     vkCmdDispatch(commandBuffer.vk(), groupCount, 1, 1);
 
@@ -195,29 +195,5 @@ DeviceBuffer& Flock::getPositionBuffer()
 uint32_t Flock::getBoidCount() const
 {
 
-	return boidCount;
-}
-
-void Flock::setCohesion(CommandBuffer& commandBuffer, float cohesion)
-{
-
-	this->cohesion = cohesion;
-
-    vkCmdPushConstants(commandBuffer.vk(), pipeline.getLayout().vk(), VK_SHADER_STAGE_COMPUTE_BIT, sizeof(uint32_t), sizeof(float), &cohesion);
-}
-
-void Flock::setAlignment(CommandBuffer& commandBuffer, float alignment)
-{
-
-	this->alignment = alignment;
-
-    vkCmdPushConstants(commandBuffer.vk(), pipeline.getLayout().vk(), VK_SHADER_STAGE_COMPUTE_BIT, sizeof(uint32_t) + sizeof(float), sizeof(float), &alignment);
-}
-
-void Flock::setSeparation(CommandBuffer& commandBuffer, float separation)
-{
-
-	this->separation = separation;
-
-    vkCmdPushConstants(commandBuffer.vk(), pipeline.getLayout().vk(), VK_SHADER_STAGE_COMPUTE_BIT, sizeof(uint32_t) + 2*sizeof(float), sizeof(float), &separation);
+	return parameters.boidCount;
 }
