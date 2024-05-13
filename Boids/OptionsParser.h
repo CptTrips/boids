@@ -12,7 +12,7 @@ class OptionsParser
     std::string computeShaderPath;
     std::string initShaderPath;
 
-    size_t flockSize;
+    uint32_t flockSize;
 
 public:
 
@@ -26,6 +26,6 @@ public:
 
     std::string getInitShaderPath() const;
 
-    size_t getFlockSize() const;
+    uint32_t getFlockSize() const;
 };
 

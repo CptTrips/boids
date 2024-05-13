@@ -24,7 +24,7 @@ OptionsParser::OptionsParser(int argc, char* argv[])
 	if (flockInt < 0)
 		flockInt = 0;
 
-	flockSize = static_cast<size_t>(flockInt);
+	flockSize = static_cast<uint32_t>(flockInt);
 }
 
 std::string OptionsParser::getVertexShaderPath() const
@@ -49,7 +49,7 @@ std::string OptionsParser::getInitShaderPath() const
 	return initShaderPath;
 }
 
-size_t OptionsParser::getFlockSize() const
+uint32_t OptionsParser::getFlockSize() const
 {
 	return flockSize;
 }

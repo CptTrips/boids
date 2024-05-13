@@ -8,7 +8,7 @@
 Application::Application(ApplicationOptions options)
     : context()
 	, renderer(RendererOptions(context, options.vertexShaderPath, options.fragmentShaderPath), options.flockSize)
-	, flock(context.device, options.flockSize, options.computeShaderPath, options.initShaderPath)
+	, flock(context.device, { options.flockSize, 1.f, 1.f, 0.1f }, options.computeShaderPath, options.initShaderPath)
 	, ui({ &(flock.parameters.cohesion), &(flock.parameters.alignment), &(flock.parameters.separation) })
 {}
 

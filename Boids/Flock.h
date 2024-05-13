@@ -71,7 +71,7 @@ private:
 
     void initBuffers();
 
-    uint32_t calcGroupCount(uint32_t boidCount);
+    uint32_t calcGroupCount();
 
     std::vector<DescriptorSetInfo> makeDescriptorSetInfos() const;
 
@@ -79,7 +79,7 @@ private:
 
 public:
 
-    Flock(Device& device, uint32_t boidCount, const std::string& computeShaderPath, const std::string& initShaderPath);
+    Flock(Device& device, PushConstants parameters, const std::string& computeShaderPath, const std::string& initShaderPath);
 
     void update(CommandBuffer& commandBuffer);
 

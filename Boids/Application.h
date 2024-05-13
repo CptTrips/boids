@@ -14,7 +14,7 @@ struct ApplicationOptions
 
     std::string vertexShaderPath, fragmentShaderPath, computeShaderPath, initShaderPath;
 
-    size_t flockSize;
+    uint32_t flockSize;
 
     ApplicationOptions(OptionsParser& options)
         : vertexShaderPath(options.getVertexShaderPath())

@@ -98,10 +98,10 @@ void Flock::initBuffers()
 	device.graphicsQueueWaitIdle();
 }
 
-uint32_t Flock::calcGroupCount(uint32_t boidCount)
+uint32_t Flock::calcGroupCount()
 {
 
-    return std::max(1u, boidCount / INVOCATIONS);
+    return std::max(1u, parameters.boidCount / INVOCATIONS);
 }
 
 std::vector<DescriptorSetInfo> Flock::makeDescriptorSetInfos() const
@@ -157,18 +157,18 @@ std::vector<DescriptorSetLayout> Flock::makeUpdateShaderDescriptorSetLayouts() c
 }
 
 
-Flock::Flock(Device& device, uint32_t boidCount, const std::string& computeShaderPath, const std::string& initShaderPath)
-	: parameters{ boidCount, 2.f, 1.f, 1.f }
+Flock::Flock(Device& device, PushConstants parameters, const std::string& computeShaderPath, const std::string& initShaderPath)
+	: parameters{ parameters }
 	, device(device)
 	, descriptorPool(device, requiredDescriptorTypes, 100)
-	, groupCount(calcGroupCount(boidCount))
+	, groupCount(calcGroupCount())
 	, posBuffers(makeBuffers())
 	, velBuffers(makeBuffers())
 	, updateShaderDescriptorSetLayouts(makeUpdateShaderDescriptorSetLayouts())
 	, updateShader(device, ShaderReader(computeShaderPath).getCode(), VK_SHADER_STAGE_COMPUTE_BIT, updateShaderDescriptorSetLayouts, { pushConstantRange })
 	, pipeline(device, updateShader)
 	, descriptorSets(descriptorPool.makeDescriptorSets(makeDescriptorSetInfos()))
-	, initialiser(device, boidCount, initShaderPath, descriptorPool)
+	, initialiser(device, parameters.boidCount, initShaderPath, descriptorPool)
 {
 
 	initBuffers();
