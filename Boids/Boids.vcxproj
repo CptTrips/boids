@@ -207,6 +207,17 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute shader compilation</Message>
     </CustomBuild>
   </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="boidUpdateReynolds.comp">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslc %(FullPath) -o %(Filename).spv</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslc %(FullPath) -o %(Filename).spv</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute shader compilation</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute shader compilation</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).spv</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).spv</Outputs>
+    </CustomBuild>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
