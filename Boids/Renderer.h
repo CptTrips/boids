@@ -35,11 +35,18 @@ struct RendererOptions
 
     std::string vertexShaderPath, fragmentShaderPath;
 
+    VkFormat swapChainFormat;
+
+    uint32_t swapChainSize;
+
+    VkExtent2D swapChainExtent;
+
     RendererOptions(
         VulkanContext& context
         , uint32_t queueSize
         , std::string vertexShaderPath
         , std::string fragmentShaderPath
+        , const SwapChain& swapChain
     )
         : window(context.window)
         , instance(context.instance)
@@ -48,6 +55,9 @@ struct RendererOptions
         , queueSize(queueSize)
         , vertexShaderPath(vertexShaderPath)
         , fragmentShaderPath(fragmentShaderPath)
+        , swapChainFormat(swapChain.getFormat())
+        , swapChainSize(static_cast<uint32_t>(swapChain.getImageCount()))
+        , swapChainExtent(swapChain.getExtent())
     {}
 };
 
@@ -70,8 +80,6 @@ private:
 
     const uint32_t QUEUE_SIZE;
 
-    SwapChain swapChain;
-
     const std::vector<PipelineBarrier> pipelineBarriers;
 
     UIRenderer uiRenderer;
@@ -85,17 +93,15 @@ private:
 
     //std::unique_ptr<DeviceBuffer> vertexBuffer, indexBuffer;
 
-    std::vector<Semaphore> freeImageSemaphores, renderCompleteSemaphores;
-
-    uint32_t frame;
+    VkExtent2D renderDomain;
 
     std::vector<PipelineBarrier> createPipelineBarriers() const;
 
-    void recordRenderCommands(CommandBuffer& commandBuffer, Image & image, UI& ui, DeviceBuffer& vertexBuffer, DeviceBuffer& indexBuffer);
-
-    void beginRendering(CommandBuffer& commandBuffer, const Image& image) const;
+    void beginRendering(CommandBuffer& commandBuffer, const Image& image, VkRect2D renderDomain) const;
 
     void bindObjects(CommandBuffer& commandBuffer, DeviceBuffer& vertexBuffer, DeviceBuffer& indexBuffer) const;
+
+    void setDomain(CommandBuffer& commandBuffer, VkExtent2D extent);
 
     void drawIndexed(CommandBuffer& commandBuffer, uint32_t indexCount) const;
 
@@ -107,6 +113,6 @@ public:
 
     Renderer(RendererOptions options);
 
-    void render(UI& ui, DeviceBuffer& vertexBuffer, DeviceBuffer& indexBuffer, CommandBuffer& commandBuffer);
+    void recordRenderCommands(CommandBuffer& commandBuffer, UI& ui, DeviceBuffer& vertexBuffer, DeviceBuffer& indexBuffer, const Image & image);
 };
 

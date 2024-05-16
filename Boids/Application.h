@@ -34,6 +34,8 @@ class Application
 
     VulkanContext context;
 
+    SwapChain swapChain;
+
     FlockRenderer renderer;
 
     Flock flock;
@@ -41,6 +43,8 @@ class Application
     BoidsUI ui;
 
     std::vector<Fence> fences;
+
+    std::vector<Semaphore> freeImageSemaphores, renderCompleteSemaphores;
 
     uint32_t frame{ 0 };
 

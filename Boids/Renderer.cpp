@@ -53,26 +53,16 @@ const std::vector<VkVertexInputAttributeDescription> Renderer::vertexAttributeDe
 Renderer::Renderer(RendererOptions options)
 	: device(options.device)
 	, QUEUE_SIZE(options.queueSize)
-	, swapChain(device, options.surface, options.window)
 	, pipelineBarriers(createPipelineBarriers())
-	, uiRenderer({ options.window, device, options.instance, swapChain })
+	, uiRenderer({ options.window, device, options.instance, options.swapChainFormat, options.swapChainSize })
 	, vertexDescriptorSetLayouts(makeVertexDescriptorSetLayouts())
 	, fragmentDescriptorSetLayouts(makeFragmentDescriptorSetLayouts())
 	, vertexShader(device, ShaderReader(options.vertexShaderPath).getCode(), VK_SHADER_STAGE_VERTEX_BIT, vertexDescriptorSetLayouts, vertexInputBindingDescriptions, vertexAttributeDescriptions, {})
 	, fragmentShader(device, ShaderReader(options.fragmentShaderPath).getCode(), VK_SHADER_STAGE_FRAGMENT_BIT, fragmentDescriptorSetLayouts, {})
-	, graphicsPipeline(device, swapChain.getFormat(), vertexShader, fragmentShader)
-	, freeImageSemaphores()
-	, renderCompleteSemaphores()
-	, frame(0)
+	, graphicsPipeline(device, options.swapChainFormat, vertexShader, fragmentShader)
+	, renderDomain{ options.swapChainExtent }
 {
 
-	for (uint32_t i{ 0 }; i < QUEUE_SIZE; i++)
-	{
-
-		freeImageSemaphores.emplace_back(device);
-
-		renderCompleteSemaphores.emplace_back(device);
-	}
 }
 
 std::vector<PipelineBarrier> Renderer::createPipelineBarriers() const
@@ -91,27 +81,6 @@ std::vector<PipelineBarrier> Renderer::createPipelineBarriers() const
 	}
 
 	return pipelineBarriers;
-}
-
-void Renderer::render(UI& ui, DeviceBuffer& vertexBuffer, DeviceBuffer& indexBuffer, CommandBuffer& commandBuffer)
-{
-
-	VkSemaphore freeImageSemaphore{ freeImageSemaphores[frame % QUEUE_SIZE].vk() };
-
-	uint32_t imageIndex{ swapChain.getFreeImageIndex(VK_NULL_HANDLE, freeImageSemaphore)};
-	Image image(swapChain.getImage(imageIndex));
-
-	recordRenderCommands(commandBuffer, image, ui, vertexBuffer, indexBuffer);
-
-	commandBuffer.addWaitSemaphore(freeImageSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
-
-	commandBuffer.addSignalSemaphore(renderCompleteSemaphores[frame % QUEUE_SIZE].vk());
-
-	// Queue rendered frame
-	std::vector<VkSemaphore> swapChainWaitSemaphores{ renderCompleteSemaphores[frame % QUEUE_SIZE].vk() };
-	swapChain.queueImage(imageIndex, swapChainWaitSemaphores);
-
-	frame++;
 }
 
 std::vector<DescriptorSetLayout> Renderer::makeVertexDescriptorSetLayouts() const
@@ -134,16 +103,18 @@ std::vector<DescriptorSetLayout> Renderer::makeFragmentDescriptorSetLayouts() co
 	return layouts;
 }
 
-void Renderer::recordRenderCommands(CommandBuffer& commandBuffer, Image & image, UI& ui, DeviceBuffer& vertexBuffer, DeviceBuffer& indexBuffer)
+void Renderer::recordRenderCommands(CommandBuffer& commandBuffer, UI& ui, DeviceBuffer& vertexBuffer, DeviceBuffer& indexBuffer, const Image & image)
 {
 
 	pipelineBarriers[0].layoutTransition(commandBuffer, image);
 
-	beginRendering(commandBuffer, image);
+	beginRendering(commandBuffer, image, VkRect2D{{0, 0}, renderDomain});
 
 	uiRenderer.render(commandBuffer, ui);
 
 	bindObjects(commandBuffer, vertexBuffer, indexBuffer);
+
+	setDomain(commandBuffer, renderDomain);
 
 	drawIndexed(commandBuffer, static_cast<uint32_t>(indexBuffer.size() / sizeof(uint32_t)));
 
@@ -152,7 +123,7 @@ void Renderer::recordRenderCommands(CommandBuffer& commandBuffer, Image & image,
 	pipelineBarriers[1].layoutTransition(commandBuffer, image);
 }
 
-void Renderer::beginRendering(CommandBuffer & commandBuffer, const Image & image) const
+void Renderer::beginRendering(CommandBuffer & commandBuffer, const Image & image, VkRect2D renderDomain) const
 {
 
 	VkRenderingAttachmentInfo colourAttachmentInfo{};
@@ -168,8 +139,7 @@ void Renderer::beginRendering(CommandBuffer & commandBuffer, const Image & image
 	VkRenderingInfo renderInfo{};
 
 	renderInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
-	renderInfo.renderArea.offset = { 0, 0 };
-	renderInfo.renderArea.extent = swapChain.getExtent();
+	renderInfo.renderArea = renderDomain;
 	renderInfo.layerCount = 1;
 	renderInfo.viewMask = 0;
 	renderInfo.colorAttachmentCount = 1;
@@ -194,22 +164,25 @@ void Renderer::bindObjects(CommandBuffer& commandBuffer, DeviceBuffer& vertexBuf
 
 	vkCmdBindIndexBuffer(commandBuffer.vk(), indexBuffer.vk(), 0, VK_INDEX_TYPE_UINT32);
 
-	VkExtent2D swapChainExtent{ swapChain.getExtent() };
+
+}
+
+void Renderer::setDomain(CommandBuffer& commandBuffer, VkExtent2D extent)
+{
 
 	VkViewport viewport{};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
-	viewport.width = (float) swapChainExtent.width;
-	viewport.height = (float) swapChainExtent.height;
+	viewport.width = (float) extent.width;
+	viewport.height = (float) extent.height;
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 	vkCmdSetViewport(commandBuffer.vk(), 0, 1, &viewport);
 
 	VkRect2D scissor{};
 	scissor.offset = {0, 0};
-	scissor.extent = swapChainExtent;
+	scissor.extent = extent;
 	vkCmdSetScissor(commandBuffer.vk(), 0, 1, &scissor);
-
 }
 
 void Renderer::drawIndexed(CommandBuffer& commandBuffer, uint32_t indexCount) const
