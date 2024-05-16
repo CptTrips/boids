@@ -46,6 +46,8 @@ class Application
 
     std::vector<Semaphore> freeImageSemaphores, renderCompleteSemaphores;
 
+    std::vector<CommandBuffer> commandBuffers;
+
     uint32_t frame{ 0 };
 
 public:

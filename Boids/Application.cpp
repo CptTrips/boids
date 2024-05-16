@@ -14,6 +14,7 @@ Application::Application(ApplicationOptions options)
 	, fences()
 	, freeImageSemaphores()
 	, renderCompleteSemaphores()
+	, commandBuffers(context.device.makeCommandBuffers(QUEUE_SIZE, false))
 {
 
 	VkDevice device{ context.device.vk() };
@@ -34,7 +35,9 @@ void Application::run()
     while (!context.window.windowShouldClose())
     {
 
-		Fence& fence{ fences[frame % QUEUE_SIZE ] };
+		uint32_t index{ frame % QUEUE_SIZE };
+
+		Fence& fence{ fences[index] };
 
 		fence.wait(UINT64_MAX);
 
@@ -42,13 +45,15 @@ void Application::run()
 
 		context.window.pollEvents();
 
-        VkSemaphore freeImageSemaphore{ freeImageSemaphores[frame % QUEUE_SIZE].vk() };
+        VkSemaphore freeImageSemaphore{ freeImageSemaphores[index].vk() };
 
         uint32_t imageIndex{ swapChain.getFreeImageIndex(VK_NULL_HANDLE, freeImageSemaphore)};
 
         Image image(swapChain.getImage(imageIndex));
 
-        CommandBuffer flockCommands{ context.device.makeSingleUseCommandBuffer() };
+        CommandBuffer& flockCommands{ commandBuffers[index]};
+
+		flockCommands.reset();
 
         flock.update(flockCommands);
 
@@ -56,17 +61,16 @@ void Application::run()
 
         flockCommands.addWaitSemaphore(freeImageSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
-        flockCommands.addSignalSemaphore(renderCompleteSemaphores[frame % QUEUE_SIZE].vk());
+        flockCommands.addSignalSemaphore(renderCompleteSemaphores[index].vk());
 
         context.device.submitCommandBuffer(flockCommands, fence.vk());
 
         // Queue rendered frame
-        std::vector<VkSemaphore> swapChainWaitSemaphores{ renderCompleteSemaphores[frame % QUEUE_SIZE].vk() };
+        std::vector<VkSemaphore> swapChainWaitSemaphores{ renderCompleteSemaphores[index].vk() };
         swapChain.queueImage(imageIndex, swapChainWaitSemaphores);
 
 		frame++;
 
-        //context.device.graphicsQueueWaitIdle();
 		//std::this_thread::sleep_for(std::chrono::milliseconds(2));
     }
 }
