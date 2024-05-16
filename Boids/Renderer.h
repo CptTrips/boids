@@ -18,6 +18,7 @@
 #include "GraphicsPipeline.h"
 #include "VertexShader.h"
 #include "DescriptorSetLayout.h"
+#include "Semaphore.h"
 
 struct RendererOptions
 {
@@ -30,10 +31,13 @@ struct RendererOptions
 
     Device& device;
 
+    uint32_t queueSize;
+
     std::string vertexShaderPath, fragmentShaderPath;
 
     RendererOptions(
         VulkanContext& context
+        , uint32_t queueSize
         , std::string vertexShaderPath
         , std::string fragmentShaderPath
     )
@@ -41,6 +45,7 @@ struct RendererOptions
         , instance(context.instance)
         , surface(context.surface)
         , device(context.device)
+        , queueSize(queueSize)
         , vertexShaderPath(vertexShaderPath)
         , fragmentShaderPath(fragmentShaderPath)
     {}
@@ -63,6 +68,8 @@ private:
 
     static const std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
 
+    const uint32_t QUEUE_SIZE;
+
     SwapChain swapChain;
 
     const std::vector<PipelineBarrier> pipelineBarriers;
@@ -77,6 +84,10 @@ private:
     GraphicsPipeline graphicsPipeline;
 
     //std::unique_ptr<DeviceBuffer> vertexBuffer, indexBuffer;
+
+    std::vector<Semaphore> freeImageSemaphores, renderCompleteSemaphores;
+
+    uint32_t frame;
 
     std::vector<PipelineBarrier> createPipelineBarriers() const;
 
@@ -96,6 +107,6 @@ public:
 
     Renderer(RendererOptions options);
 
-    void render(UI& ui, DeviceBuffer& vertexBuffer, DeviceBuffer& indexBuffer);
+    void render(UI& ui, DeviceBuffer& vertexBuffer, DeviceBuffer& indexBuffer, CommandBuffer& commandBuffer);
 };
 

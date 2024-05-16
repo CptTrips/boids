@@ -21,6 +21,6 @@ class FlockRenderer :
 public:
     FlockRenderer(RendererOptions options, uint32_t flockSize);
 
-    void render(UI& ui, Flock& flock);
+    void render(UI& ui, Flock& flock, CommandBuffer& commandBuffer);
 };
 

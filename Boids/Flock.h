@@ -43,6 +43,8 @@ private:
 
     static const VkPushConstantRange pushConstantRange;
 
+    const uint32_t QUEUE_SIZE;
+
     uint64_t step{ 0 };
 
     Device& device;
@@ -79,7 +81,7 @@ private:
 
 public:
 
-    Flock(Device& device, PushConstants parameters, const std::string& computeShaderPath, const std::string& initShaderPath);
+    Flock(Device& device, PushConstants parameters, uint32_t queueSize, const std::string& computeShaderPath, const std::string& initShaderPath);
 
     void update(CommandBuffer& commandBuffer);
 

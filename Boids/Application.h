@@ -1,11 +1,13 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "VulkanContext.h"
 #include "FlockRenderer.h"
 #include "BoidsUI.h"
 #include "Flock.h"
+#include "Fence.h"
 
 #include "OptionsParser.h"
 
@@ -28,6 +30,8 @@ struct ApplicationOptions
 class Application
 {
 
+    static constexpr uint32_t QUEUE_SIZE { 2 };
+
     VulkanContext context;
 
     FlockRenderer renderer;
@@ -36,6 +40,9 @@ class Application
 
     BoidsUI ui;
 
+    std::vector<Fence> fences;
+
+    uint32_t frame{ 0 };
 
 public:
 

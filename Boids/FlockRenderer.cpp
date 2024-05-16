@@ -46,10 +46,10 @@ FlockRenderer::FlockRenderer(RendererOptions options, uint32_t flockSize)
 	indexBuffer.upload(indices.data(), indices.size() * sizeof(uint32_t));
 }
 
-void FlockRenderer::render(UI& ui, Flock& flock)
+void FlockRenderer::render(UI& ui, Flock& flock, CommandBuffer& commandBuffer)
 {
 
     updateVertices();
 
-    Renderer::render(ui, flock.getPositionBuffer(), indexBuffer);
+    Renderer::render(ui, flock.getPositionBuffer(), indexBuffer, commandBuffer);
 }

@@ -62,7 +62,7 @@ void Flock::bindObjects(CommandBuffer& commandBuffer) const
 
     pipeline.bind(commandBuffer);
 
-	descriptorSets[step % 2].bind(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline.getLayout());
+	descriptorSets[step % QUEUE_SIZE].bind(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline.getLayout());
 }
 
 std::vector<DeviceBuffer> Flock::makeBuffers() const
@@ -78,9 +78,11 @@ std::vector<DeviceBuffer> Flock::makeBuffers() const
 
 	std::vector<DeviceBuffer> buffers;
 
-	buffers.emplace_back(bufferSize, usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, device);
+	for (uint32_t i{ 0 }; i < QUEUE_SIZE; i++)
+	{
 
-	buffers.emplace_back(bufferSize, usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, device);
+		buffers.emplace_back(bufferSize, usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, device);
+	}
 
 	return buffers;
 }
@@ -111,35 +113,29 @@ std::vector<DescriptorSetInfo> Flock::makeDescriptorSetInfos() const
 
 	std::vector<Descriptor> descriptors;
 
-	std::vector<const DeviceBuffer*> posBufferA{ &posBuffers[0] };
+	for (uint32_t i{ 0 }; i < QUEUE_SIZE; i++)
+	{
 
-	std::vector<const DeviceBuffer*> velBufferA{ &velBuffers[0] };
+        std::vector<const DeviceBuffer*> posBufferA{ &posBuffers[i] };
 
-	std::vector<const DeviceBuffer*> posBufferB{ &posBuffers[1] };
+        std::vector<const DeviceBuffer*> velBufferA{ &velBuffers[i] };
 
-	std::vector<const DeviceBuffer*> velBufferB{ &velBuffers[1] };
+        std::vector<const DeviceBuffer*> posBufferB{ &posBuffers[(i + 1) % QUEUE_SIZE]};
 
-	descriptors.emplace_back(inPosBinding, posBufferA);
+        std::vector<const DeviceBuffer*> velBufferB{ &velBuffers[(i + 1) % QUEUE_SIZE] };
 
-	descriptors.emplace_back(inVelBinding, velBufferA);
+        descriptors.emplace_back(inPosBinding, posBufferA);
 
-	descriptors.emplace_back(outPosBinding, posBufferB);
+        descriptors.emplace_back(inVelBinding, velBufferA);
 
-	descriptors.emplace_back(outVelBinding, velBufferB);
+        descriptors.emplace_back(outPosBinding, posBufferB);
 
-    descriptorSetInfos.emplace_back(descriptors, &updateShaderDescriptorSetLayouts[0]);
+        descriptors.emplace_back(outVelBinding, velBufferB);
 
-	descriptors.clear();
+        descriptorSetInfos.emplace_back(descriptors, &updateShaderDescriptorSetLayouts[0]);
 
-	descriptors.emplace_back(inPosBinding, posBufferB);
-
-	descriptors.emplace_back(inVelBinding, velBufferB);
-
-	descriptors.emplace_back(outPosBinding, posBufferA);
-
-	descriptors.emplace_back(outVelBinding, velBufferA);
-
-    descriptorSetInfos.emplace_back(descriptors, &updateShaderDescriptorSetLayouts[0]);
+        descriptors.clear();
+	}
 
 	return descriptorSetInfos;
 }
@@ -157,8 +153,9 @@ std::vector<DescriptorSetLayout> Flock::makeUpdateShaderDescriptorSetLayouts() c
 }
 
 
-Flock::Flock(Device& device, PushConstants parameters, const std::string& computeShaderPath, const std::string& initShaderPath)
+Flock::Flock(Device& device, PushConstants parameters, uint32_t queueSize, const std::string& computeShaderPath, const std::string& initShaderPath)
 	: parameters{ parameters }
+	, QUEUE_SIZE(queueSize)
 	, device(device)
 	, descriptorPool(device, requiredDescriptorTypes, 100)
 	, groupCount(calcGroupCount())
@@ -189,7 +186,7 @@ void Flock::update(CommandBuffer& commandBuffer)
 DeviceBuffer& Flock::getPositionBuffer()
 {
 
-	return posBuffers[step % 2];
+	return posBuffers[step % QUEUE_SIZE];
 }
 
 uint32_t Flock::getBoidCount() const

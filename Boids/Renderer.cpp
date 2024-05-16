@@ -52,6 +52,7 @@ const std::vector<VkVertexInputAttributeDescription> Renderer::vertexAttributeDe
 
 Renderer::Renderer(RendererOptions options)
 	: device(options.device)
+	, QUEUE_SIZE(options.queueSize)
 	, swapChain(device, options.surface, options.window)
 	, pipelineBarriers(createPipelineBarriers())
 	, uiRenderer({ options.window, device, options.instance, swapChain })
@@ -60,10 +61,18 @@ Renderer::Renderer(RendererOptions options)
 	, vertexShader(device, ShaderReader(options.vertexShaderPath).getCode(), VK_SHADER_STAGE_VERTEX_BIT, vertexDescriptorSetLayouts, vertexInputBindingDescriptions, vertexAttributeDescriptions, {})
 	, fragmentShader(device, ShaderReader(options.fragmentShaderPath).getCode(), VK_SHADER_STAGE_FRAGMENT_BIT, fragmentDescriptorSetLayouts, {})
 	, graphicsPipeline(device, swapChain.getFormat(), vertexShader, fragmentShader)
+	, freeImageSemaphores()
+	, renderCompleteSemaphores()
+	, frame(0)
 {
 
-	/*
-	*/
+	for (uint32_t i{ 0 }; i < QUEUE_SIZE; i++)
+	{
+
+		freeImageSemaphores.emplace_back(device);
+
+		renderCompleteSemaphores.emplace_back(device);
+	}
 }
 
 std::vector<PipelineBarrier> Renderer::createPipelineBarriers() const
@@ -84,25 +93,25 @@ std::vector<PipelineBarrier> Renderer::createPipelineBarriers() const
 	return pipelineBarriers;
 }
 
-void Renderer::render(UI& ui, DeviceBuffer& vertexBuffer, DeviceBuffer& indexBuffer)
+void Renderer::render(UI& ui, DeviceBuffer& vertexBuffer, DeviceBuffer& indexBuffer, CommandBuffer& commandBuffer)
 {
 
-	// Acquire next available rendering resource pack (image, command buffer...)
-	uint32_t imageIndex{ swapChain.getFreeImageIndex() };
-	Image image(swapChain.getImage(imageIndex));
+	VkSemaphore freeImageSemaphore{ freeImageSemaphores[frame % QUEUE_SIZE].vk() };
 
-	// Record rendering instructions in command buffer
-	CommandBuffer commandBuffer(device.makeSingleUseCommandBuffer());
+	uint32_t imageIndex{ swapChain.getFreeImageIndex(VK_NULL_HANDLE, freeImageSemaphore)};
+	Image image(swapChain.getImage(imageIndex));
 
 	recordRenderCommands(commandBuffer, image, ui, vertexBuffer, indexBuffer);
 
-	// Submit command buffer
-	device.submitCommandBuffer(commandBuffer);
+	commandBuffer.addWaitSemaphore(freeImageSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+
+	commandBuffer.addSignalSemaphore(renderCompleteSemaphores[frame % QUEUE_SIZE].vk());
 
 	// Queue rendered frame
-	swapChain.queueImage(imageIndex);
+	std::vector<VkSemaphore> swapChainWaitSemaphores{ renderCompleteSemaphores[frame % QUEUE_SIZE].vk() };
+	swapChain.queueImage(imageIndex, swapChainWaitSemaphores);
 
-	device.graphicsQueueWaitIdle();
+	frame++;
 }
 
 std::vector<DescriptorSetLayout> Renderer::makeVertexDescriptorSetLayouts() const
