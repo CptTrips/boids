@@ -103,7 +103,7 @@ void Flock::initBuffers()
 uint32_t Flock::calcGroupCount()
 {
 
-    return std::max(1u, parameters.boidCount / INVOCATIONS);
+    return std::max(1u, (parameters.boidCount + LOCAL_SIZE - 1) / LOCAL_SIZE);
 }
 
 std::vector<DescriptorSetInfo> Flock::makeDescriptorSetInfos() const
