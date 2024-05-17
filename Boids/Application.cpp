@@ -7,7 +7,7 @@
 
 Application::Application(ApplicationOptions options)
     : context()
-	, swapChain(context.device, context.surface, context.window, VK_PRESENT_MODE_IMMEDIATE_KHR)
+	, swapChain(context.device, context.surface, context.window, VK_PRESENT_MODE_FIFO_KHR, QUEUE_SIZE + 2)
 	, renderer(RendererOptions(context, QUEUE_SIZE, options.vertexShaderPath, options.fragmentShaderPath, swapChain), options.flockSize)
 	, flock(context.device, { options.flockSize, 1.f, 1.f, 0.1f }, QUEUE_SIZE, options.computeShaderPath, options.initShaderPath)
 	, ui({ &(flock.parameters.cohesion), &(flock.parameters.alignment), &(flock.parameters.separation) })
