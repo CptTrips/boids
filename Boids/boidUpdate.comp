@@ -8,9 +8,9 @@
 
 //#define separationConstant 1.0
 
-#define preferredDistance 0.03
+#define preferredDistance 0.01
 
-#define cutoffDistance 0.1
+#define cutoffDistance 0.02
 
 #define speed 0.2
 
