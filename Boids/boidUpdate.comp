@@ -39,27 +39,10 @@ layout(std430, binding = 3) buffer velOutSSBO {
 
 layout (local_size_x = 128, local_size_y = 1, local_size_z = 1) in;
 
-float cutoff(vec2 r)
-{
-
-    if (length(r) < cutoffDistance)
-        return 1.0;
-    else
-        return 0.0;
-}
-
 vec2 rot90(vec2 v)
 {
 
     return vec2(v.y, -v.x);
-}
-
-vec2 cutoffDisplacement(uint i, uint index)
-{
-
-    vec2 r = posIn[i] - posIn[index];
-
-    return r * cutoff(r);
 }
 
 vec2 localAvgPos(uint index)
@@ -69,31 +52,19 @@ vec2 localAvgPos(uint index)
 
     uint n = 0;
 
-    for (uint i = 0; i < index; i++)
+    for (uint i = 0; i < flockSize; i++)
     {
 
-        vec2 dx = cutoffDisplacement(i, index);    
+        vec2 r = posIn[i] - posIn[index];    
 
-        if (any(greaterThan(dx, vec2(0, 0))))
-        {
+        bool inRange = length(r) < cutoffDistance;
 
-			x += dx;
-            n++;
-		}
+		x += (inRange) ? r : vec2(0, 0);
+
+		n += (inRange) ? 1 : 0;
     }
 
-    for (uint i = index + 1; i < flockSize; i++)
-    {
-
-        vec2 dx = cutoffDisplacement(i, index);    
-
-        if (any(greaterThan(dx, vec2(0, 0))))
-        {
-
-			x += dx;
-            n++;
-		}
-    }
+    n--;
 
     n = max(1, n);
 
@@ -128,29 +99,19 @@ vec2 localAvgVel(uint index)
 
     uint n = 0;
 
-    for (uint i = 0; i < index; i++)
+    for (uint i = 0; i < flockSize; i++)
     {
 
-        if (cutoff(posIn[index] - posIn[i]) > 0)
-		{
+        bool inRange = length(posIn[index] - posIn[i]) < cutoffDistance;
 
-			v += velIn[i];
+		v += (inRange) ? velIn[i] : vec2(0, 0);
 
-            n++;
-        }
+		n += (inRange) ? 1 : 0;
     }
 
-    for (uint i = index + 1; i < flockSize; i++)
-    {
+    v -= velIn[index];
 
-        if (cutoff(posIn[index] - posIn[i]) > 0)
-		{
-
-			v += velIn[i];
-
-            n++;
-        }
-    }
+    n--;
 
     n = max(1, n);
 
@@ -170,32 +131,16 @@ vec2 closestBoid(uint index)
 
     float d = 100;
 
-    for (uint i = 0; i < index; i++)
+    for (uint i = 0; i < flockSize; i++)
     {
         
         vec2 displacement = posIn[i] - posIn[index];
 
-        if (length(displacement) < d)
-        {
+        float l = length(displacement);
 
-            v = displacement;
+		v = ((l < d) && (l > 0)) ? displacement : v;
 
-            d = length(displacement);
-		}
-    }
-
-    for (uint i = index + 1; i < flockSize; i++)
-    {
-
-        vec2 displacement = posIn[i] - posIn[index];
-
-        if (length(displacement) < d)
-        {
-
-            v = displacement;
-
-            d = length(displacement);
-		}
+		d = ((l < d) && (l > 0)) ? l : d;
     }
 
     return v;
