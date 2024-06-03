@@ -7,7 +7,9 @@
 #include "FlockRenderer.h"
 #include "BoidsUI.h"
 #include "Flock.h"
+
 #include "Fence.h"
+#include "QueryPool.h"
 
 #include "OptionsParser.h"
 
@@ -49,6 +51,10 @@ class Application
     std::vector<CommandBuffer> commandBuffers;
 
     uint32_t frame{ 0 };
+
+    QueryPool timestampQueryPool;
+
+    std::vector<uint32_t> frameStartQueries, frameEndQueries;
 
 public:
 

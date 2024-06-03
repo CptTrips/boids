@@ -2,9 +2,6 @@
 
 #include "Vertex.h"
 
-#include <chrono>
-#include <thread>
-
 Application::Application(ApplicationOptions options)
     : context()
 	, swapChain(context.device, context.surface, context.window, QUEUE_SIZE + 2)
@@ -15,6 +12,8 @@ Application::Application(ApplicationOptions options)
 	, freeImageSemaphores()
 	, renderCompleteSemaphores()
 	, commandBuffers(context.device.makeCommandBuffers(QUEUE_SIZE, false))
+	, timestampQueryPool(context.device.vk(), VK_QUERY_TYPE_TIMESTAMP)
+	, frameStartQueries(), frameEndQueries()
 {
 
 	VkDevice device{ context.device.vk() };
@@ -26,6 +25,10 @@ Application::Application(ApplicationOptions options)
 		freeImageSemaphores.emplace_back(device);
 
 		renderCompleteSemaphores.emplace_back(device);
+
+		frameStartQueries.push_back(i);
+
+		frameEndQueries.push_back(QUEUE_SIZE + i);
 	}
 }
 
@@ -55,13 +58,16 @@ void Application::run()
 
 		flockCommands.reset();
 
-		//context.device.writeTimestamp(VK_SHADER_STAGE_COMPUTE_BIT, frameStartQueries[index]);
+		vkCmdResetQueryPool(flockCommands.vk(), timestampQueryPool.vk(), frameStartQueries[index], 1);
+		vkCmdResetQueryPool(flockCommands.vk(), timestampQueryPool.vk(), frameEndQueries[index], 1);
+
+		vkCmdWriteTimestamp2(flockCommands.vk(), VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, timestampQueryPool.vk(), frameStartQueries[index]);
 
         flock.update(flockCommands);
 
 		renderer.recordRenderCommands(flockCommands, ui, flock, image);
 
-		//context.device.writeTimestamp(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, frameEndQueries[index]);
+		vkCmdWriteTimestamp2(flockCommands.vk(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, timestampQueryPool.vk(), frameEndQueries[index]);
 
         flockCommands.addWaitSemaphore(freeImageSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
@@ -74,8 +80,6 @@ void Application::run()
         swapChain.queueImage(imageIndex, swapChainWaitSemaphores);
 
 		frame++;
-
-		//std::this_thread::sleep_for(std::chrono::milliseconds(2));
     }
 }
 
