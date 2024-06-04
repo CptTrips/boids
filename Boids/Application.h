@@ -32,7 +32,7 @@ struct ApplicationOptions
 class Application
 {
 
-    static constexpr uint32_t QUEUE_SIZE { 1 };
+    static constexpr uint32_t QUEUE_SIZE { 2 };
 
     VulkanContext context;
 

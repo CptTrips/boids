@@ -58,7 +58,9 @@ void Application::run()
 
             float frametime{ timer.getTime(index) };
 
-            printf("Frametime %i: %.1f\n", index, frametime / 1e6);
+            //printf("Frametime %i: %.1f\n", index, frametime / 1e6);
+
+			ui.setFrametime(frametime);
 		}
 
 		timer.startTimer(flockCommands, index, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
