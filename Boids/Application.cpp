@@ -79,6 +79,11 @@ void Application::run()
         std::vector<VkSemaphore> swapChainWaitSemaphores{ renderCompleteSemaphores[index].vk() };
         swapChain.queueImage(imageIndex, swapChainWaitSemaphores);
 
+		uint32_t frameStartTimestamp{ timestampQueryPool.getResult<uint32_t>(frameStartQueries[index]) };
+		uint32_t frameEndTimestamp{ timestampQueryPool.getResult<uint32_t>(frameEndQueries[index]) };
+
+		printf("Frametime %i: %i\n", index, frameEndTimestamp - frameStartTimestamp);
+
 		frame++;
     }
 }
