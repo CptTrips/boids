@@ -12,8 +12,7 @@ Application::Application(ApplicationOptions options)
 	, freeImageSemaphores()
 	, renderCompleteSemaphores()
 	, commandBuffers(context.device.makeCommandBuffers(QUEUE_SIZE, false))
-	, timestampQueryPool(context.device.vk(), VK_QUERY_TYPE_TIMESTAMP)
-	, frameStartQueries(), frameEndQueries()
+	, timer(context.device, QUEUE_SIZE)
 {
 
 	VkDevice device{ context.device.vk() };
@@ -25,10 +24,6 @@ Application::Application(ApplicationOptions options)
 		freeImageSemaphores.emplace_back(device);
 
 		renderCompleteSemaphores.emplace_back(device);
-
-		frameStartQueries.push_back(i);
-
-		frameEndQueries.push_back(QUEUE_SIZE + i);
 	}
 }
 
@@ -58,16 +53,21 @@ void Application::run()
 
 		flockCommands.reset();
 
-		vkCmdResetQueryPool(flockCommands.vk(), timestampQueryPool.vk(), frameStartQueries[index], 1);
-		vkCmdResetQueryPool(flockCommands.vk(), timestampQueryPool.vk(), frameEndQueries[index], 1);
+		if (frame > QUEUE_SIZE)
+		{
 
-		vkCmdWriteTimestamp2(flockCommands.vk(), VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, timestampQueryPool.vk(), frameStartQueries[index]);
+            float frametime{ timer.getTime(index) };
+
+            printf("Frametime %i: %.1f\n", index, frametime / 1e6);
+		}
+
+		timer.startTimer(flockCommands, index, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
 
         flock.update(flockCommands);
 
 		renderer.recordRenderCommands(flockCommands, ui, flock, image);
 
-		vkCmdWriteTimestamp2(flockCommands.vk(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, timestampQueryPool.vk(), frameEndQueries[index]);
+		timer.stopTimer(flockCommands, index, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
         flockCommands.addWaitSemaphore(freeImageSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
@@ -78,11 +78,6 @@ void Application::run()
         // Queue rendered frame
         std::vector<VkSemaphore> swapChainWaitSemaphores{ renderCompleteSemaphores[index].vk() };
         swapChain.queueImage(imageIndex, swapChainWaitSemaphores);
-
-		uint32_t frameStartTimestamp{ timestampQueryPool.getResult<uint32_t>(frameStartQueries[index]) };
-		uint32_t frameEndTimestamp{ timestampQueryPool.getResult<uint32_t>(frameEndQueries[index]) };
-
-		printf("Frametime %i: %i\n", index, frameEndTimestamp - frameStartTimestamp);
 
 		frame++;
     }

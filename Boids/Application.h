@@ -9,7 +9,7 @@
 #include "Flock.h"
 
 #include "Fence.h"
-#include "QueryPool.h"
+#include "GPUTimer.h"
 
 #include "OptionsParser.h"
 
@@ -32,7 +32,7 @@ struct ApplicationOptions
 class Application
 {
 
-    static constexpr uint32_t QUEUE_SIZE { 2 };
+    static constexpr uint32_t QUEUE_SIZE { 1 };
 
     VulkanContext context;
 
@@ -52,9 +52,7 @@ class Application
 
     uint32_t frame{ 0 };
 
-    QueryPool timestampQueryPool;
-
-    std::vector<uint32_t> frameStartQueries, frameEndQueries;
+    GPUTimer timer;
 
 public:
 
