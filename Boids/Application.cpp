@@ -12,7 +12,9 @@ Application::Application(ApplicationOptions options)
 	, freeImageSemaphores()
 	, renderCompleteSemaphores()
 	, commandBuffers(context.device.makeCommandBuffers(QUEUE_SIZE, false))
-	, timer(context.device, QUEUE_SIZE)
+	, computeTimer(context.device, QUEUE_SIZE)
+	, drawTimer(context.device, QUEUE_SIZE)
+	, frameTimer(context.device, QUEUE_SIZE)
 {
 
 	VkDevice device{ context.device.vk() };
@@ -56,20 +58,32 @@ void Application::run()
 		if (frame > QUEUE_SIZE)
 		{
 
-            float frametime{ timer.getTime(index) };
+            float frametime{ frameTimer.getTime(index) / 1e6f };
 
-            //printf("Frametime %i: %.1f\n", index, frametime / 1e6);
+			float computeTime{ computeTimer.getTime(index) / 1e6f };
 
-			ui.setFrametime(frametime);
+			float drawTime{ drawTimer.getTime(index) / 1e6f };
+
+            //printf("Frame : %5.1fms Compute : %5.1fms Draw : %5.1fms\n", frametime, computeTime, drawTime);
+
+			ui.setFrametime(frametime, computeTime, drawTime);
 		}
 
-		timer.startTimer(flockCommands, index, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+		frameTimer.startTimer(flockCommands, index, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+
+		computeTimer.startTimer(flockCommands, index, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
 
         flock.update(flockCommands);
 
+		computeTimer.stopTimer(flockCommands, index, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+
+		drawTimer.startTimer(flockCommands, index, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
+
 		renderer.recordRenderCommands(flockCommands, ui, flock, image);
 
-		timer.stopTimer(flockCommands, index, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+		drawTimer.stopTimer(flockCommands, index, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+
+		frameTimer.stopTimer(flockCommands, index, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
         flockCommands.addWaitSemaphore(freeImageSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 

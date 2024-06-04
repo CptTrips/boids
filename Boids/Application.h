@@ -52,7 +52,7 @@ class Application
 
     uint32_t frame{ 0 };
 
-    GPUTimer timer;
+    GPUTimer computeTimer, drawTimer, frameTimer;
 
 public:
 

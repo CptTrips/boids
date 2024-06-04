@@ -7,7 +7,7 @@ struct UIState
 
     float *cohesion, *alignment, *separation;
 
-    float frametime;
+    float frametime, computeTime, drawTime;
 };
 
 class BoidsUI : public UI
@@ -25,6 +25,7 @@ public:
 
     virtual void draw();
 
-    void setFrametime(float frametime);
+    // miliseconds
+    void setFrametime(float frametime, float computeTime, float drawTime);
 };
 

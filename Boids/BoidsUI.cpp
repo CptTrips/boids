@@ -25,7 +25,11 @@ void BoidsUI::drawPerformance()
 
     std::stringstream frametimeText;
     
-    frametimeText << std::fixed << std::setprecision(1) << state.frametime / 1e6 << "ms";
+    frametimeText << std::fixed << std::setprecision(1);
+    frametimeText << "  Frame | Compute |  Draw\n";
+    frametimeText << std::setw(5) << state.frametime << "ms |";
+    frametimeText << std::setw(6) << state.computeTime << "ms |";
+    frametimeText << std::setw(5) << state.drawTime << "ms";
 
     ImGui::Text(frametimeText.str().c_str());
 
@@ -45,8 +49,13 @@ void BoidsUI::draw()
     drawPerformance();
 }
 
-void BoidsUI::setFrametime(float frametime)
+// miliseconds
+void BoidsUI::setFrametime(float frametime, float computeTime, float drawTime)
 {
 
     state.frametime = frametime;
+
+    state.computeTime = computeTime;
+
+    state.drawTime = drawTime;
 }
