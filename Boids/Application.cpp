@@ -58,7 +58,7 @@ void Application::run()
 		if (frame > QUEUE_SIZE)
 		{
 
-            float frametime{ frameTimer.getTime(index) / 1e6f };
+            float frameTime{ frameTimer.getTime(index) / 1e6f };
 
 			float computeTime{ computeTimer.getTime(index) / 1e6f };
 
@@ -66,7 +66,9 @@ void Application::run()
 
             //printf("Frame : %5.1fms Compute : %5.1fms Draw : %5.1fms\n", frametime, computeTime, drawTime);
 
-			ui.setFrametime(frametime, computeTime, drawTime);
+			ui.setFrametime(frameTime, computeTime, drawTime);
+
+			perfLog.log(computeTime, drawTime, frameTime);
 		}
 
 		frameTimer.startTimer(flockCommands, index, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
@@ -97,5 +99,32 @@ void Application::run()
 
 		frame++;
     }
+
+	perfLog.print();
 }
 
+void PerformanceLog::log(float computeTime, float drawTime, float frameTime)
+{
+
+    rollingAppend(computeTimes, computeTime);
+    rollingAppend(drawTimes, drawTime);
+    rollingAppend(frameTimes, frameTime);
+
+}
+
+void PerformanceLog::print() const
+{
+
+	printf("compute,draw,frame\n");
+
+	for (size_t i{ 0 }; i < computeTimes.size(); i++)
+		printf("%.1f,%.1f,%.1f\n", computeTimes[i], drawTimes[i], frameTimes[i]);
+}
+
+void PerformanceLog::rollingAppend(std::vector<float>& v, float x)
+{
+	if (v.size() > 1024)
+		v.clear();
+
+	v.push_back(x);
+}

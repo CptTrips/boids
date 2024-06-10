@@ -13,6 +13,19 @@
 
 #include "OptionsParser.h"
 
+struct PerformanceLog
+{
+
+    std::vector<float> computeTimes, drawTimes, frameTimes;
+
+    void log(float computeTime, float drawTime, float frameTime);
+
+    void print() const;
+
+private:
+    static void rollingAppend(std::vector<float>& v, float x);
+};
+
 struct ApplicationOptions
 {
 
@@ -53,6 +66,8 @@ class Application
     uint32_t frame{ 0 };
 
     GPUTimer computeTimer, drawTimer, frameTimer;
+
+    PerformanceLog perfLog;
 
 public:
 
