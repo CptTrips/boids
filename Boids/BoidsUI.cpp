@@ -25,7 +25,7 @@ void BoidsUI::drawPerformance()
 
     std::stringstream frametimeText;
     
-    frametimeText << std::fixed << std::setprecision(1);
+    frametimeText << std::fixed << std::setprecision(2);
     frametimeText << "  Frame | Compute |  Draw\n";
     frametimeText << std::setw(5) << state.frametime << "ms |";
     frametimeText << std::setw(6) << state.computeTime << "ms |";

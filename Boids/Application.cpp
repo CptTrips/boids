@@ -118,7 +118,7 @@ void PerformanceLog::print() const
 	printf("compute,draw,frame\n");
 
 	for (size_t i{ 0 }; i < computeTimes.size(); i++)
-		printf("%.1f,%.1f,%.1f\n", computeTimes[i], drawTimes[i], frameTimes[i]);
+		printf("%.2f,%.2f,%.2f\n", computeTimes[i], drawTimes[i], frameTimes[i]);
 }
 
 void PerformanceLog::rollingAppend(std::vector<float>& v, float x)
