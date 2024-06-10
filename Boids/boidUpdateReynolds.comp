@@ -6,7 +6,7 @@
 
 #define perceptionFOV radians(120)
 
-#define EPS 0.5
+#define EPS 0.002
 
 #define speed 0.2
 
@@ -89,15 +89,21 @@ vec2 velocityUpdate(uint index)
 
     vec2 localAvgVel = vec2(0.0, 0.0);
 
+    vec2 separation = vec2(0.0, 0.0);
+
     for (int j = 0; j < flockSize; j++)
     { 
-    
-		if ((j != index) && (!outsidePerception(posIn[j] - posIn[index], velIn[index])))
+
+        vec2 r = posIn[j] - posIn[index];
+
+		if ((j != index) && (!outsidePerception(r, velIn[index])))
         {
 
-        localAvgPos += posIn[j];
+        localAvgPos += r;
 
         localAvgVel += velIn[j];
+
+        separation -= normalize(r) / pow(3 * length(r) / perceptionRange, 3);
 
         localPop++;
         }
@@ -111,9 +117,7 @@ vec2 velocityUpdate(uint index)
 		localAvgVel /= localPop;
 	}
 
-    vec2 cohesion = localAvgPos - posIn[index];
-
-    vec2 separation = -cohesion / (dot(cohesion, cohesion) + EPS);
+    vec2 cohesion = localAvgPos;
 
     vec2 alignment = localAvgVel - velIn[index];
 
