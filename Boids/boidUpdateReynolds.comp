@@ -1,0 +1,161 @@
+#version 450
+
+#define timeStep 0.0167
+
+#define perceptionRange 0.1
+
+#define perceptionFOV radians(120)
+
+#define EPS 0.5
+
+#define speed 0.2
+
+
+layout(std430, push_constant) uniform pushConstants {
+    uint flockSize;
+    float cohesionConstant;
+    float alignmentConstant;
+    float separationConstant;
+};
+
+layout(std430, binding = 0) readonly buffer posInSSBO {
+    vec2 posIn[];
+};
+
+layout(std430, binding = 1) readonly buffer velInSSBO {
+    vec2 velIn[];
+};
+
+layout(std430, binding = 2) buffer posOutSSBO {
+    vec2 posOut[];
+};
+
+layout(std430, binding = 3) buffer velOutSSBO {
+    vec2 velOut[];
+};
+
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+vec2 rot90(vec2 v)
+{
+
+    return vec2(v.y, -v.x);
+}
+
+float positiveQuadraticRoot(float a, float b, float c)
+{
+
+    return (-b + sqrt(b*b - 4 * a * c)) / (2 * a);
+}
+
+// Clamps magnitude to 1
+vec2 clampedAdd(vec2 u, vec2 v)
+{
+
+    if (dot(u, u) > 1.0)
+        return normalize(u);
+
+    vec2 result = u + v;
+
+    if (length(result) < 1.0)
+        return result;
+
+    if (dot(v, v) < 0.01)
+        return u;
+
+    float x = positiveQuadraticRoot(dot(v, v), 2 * dot(u, v), dot(u, u) - 1);
+
+    return u + x * v;
+}
+
+bool outsidePerception(vec2 relativePos, vec2 velSelf)
+{
+
+    if (dot(relativePos, relativePos) > perceptionRange)
+        return true;
+
+    if (dot(normalize(relativePos), normalize(velSelf)) < cos(perceptionFOV))
+        return true;
+
+    return false;
+}
+
+vec2 velocityUpdate(uint index)
+{
+
+    uint localPop = 0;
+
+    vec2 localAvgPos = vec2(0.0, 0.0);
+
+    vec2 localAvgVel = vec2(0.0, 0.0);
+
+    for (int j = 0; j < flockSize; j++)
+    { 
+    
+		if ((j != index) && (!outsidePerception(posIn[j] - posIn[index], velIn[index])))
+        {
+
+        localAvgPos += posIn[j];
+
+        localAvgVel += velIn[j];
+
+        localPop++;
+        }
+    }
+
+    if (localPop > 0)
+    {
+
+		localAvgPos /= localPop;
+
+		localAvgVel /= localPop;
+	}
+
+    vec2 cohesion = localAvgPos - posIn[index];
+
+    vec2 separation = -cohesion / (dot(cohesion, cohesion) + EPS);
+
+    vec2 alignment = localAvgVel - velIn[index];
+
+    vec2 impulse = vec2(0.0, 0.0);
+
+	impulse = clampedAdd(impulse, separationConstant * separation);
+
+	impulse = clampedAdd(impulse, alignmentConstant * alignment);
+
+	impulse = clampedAdd(impulse, cohesionConstant * cohesion);
+
+    return speed * normalize(velIn[index] + impulse * timeStep);
+}
+
+float circular(float x)
+{
+
+    if (x > 1)
+        x -= 2;
+    else if (x < -1)
+        x += 2;
+
+    return x;
+}
+
+vec2 tile(vec2 v)
+{
+
+    return vec2(circular(v.x), circular(v.y));
+}
+
+void main()
+{
+
+    uint index = gl_GlobalInvocationID.x;
+
+    if (index >= flockSize)
+        return;
+
+    posOut[index] = posIn[index] + timeStep * velIn[index];
+
+    posOut[index] = tile(posOut[index]);
+
+    velOut[index] = velocityUpdate(index);
+}
