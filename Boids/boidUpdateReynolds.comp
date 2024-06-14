@@ -71,13 +71,7 @@ vec2 clampedAdd(vec2 u, vec2 v)
 bool outsidePerception(vec2 relativePos, vec2 velSelf)
 {
 
-    if (dot(relativePos, relativePos) > perceptionRange)
-        return true;
-
-    if (dot(normalize(relativePos), normalize(velSelf)) < cos(perceptionFOV))
-        return true;
-
-    return false;
+    return (length(relativePos) > perceptionRange) || (dot(normalize(relativePos), normalize(velSelf)) < cos(perceptionFOV));
 }
 
 vec2 velocityUpdate(uint index)
