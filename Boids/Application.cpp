@@ -101,6 +101,8 @@ void Application::run()
     }
 
 	perfLog.print();
+
+	context.device.graphicsQueueWaitIdle();
 }
 
 void PerformanceLog::log(float computeTime, float drawTime, float frameTime)
