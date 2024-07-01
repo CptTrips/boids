@@ -23,7 +23,9 @@ void main()
     if (index >= flockSize)
         return;
 
-    posIn[index] = vec3(sin(3927 * index * FREQ), cos(51057 * index * FREQ), 0.5);
+    posIn[index] = vec3(sin(3927 * index * FREQ), cos(51057 * index * FREQ), 0.0);
 
-    velIn[index] = -posIn[index];
+    posIn[index] = vec3(posIn[index].xy, 1.0 + posIn[index].x * 0.32 + posIn[index].y * 0.412);
+
+    velIn[index] = vec3(-posIn[index].xy, 0.0);
 }

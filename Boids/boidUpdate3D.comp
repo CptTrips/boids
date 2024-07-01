@@ -8,7 +8,7 @@
 
 #define EPS 0.002
 
-#define speed 0.2
+#define g 1.0
 
 
 layout(std430, push_constant) uniform pushConstants {
@@ -104,15 +104,17 @@ vec3 velocityUpdate(uint index)
 
     vec3 alignment = localAvgVel - velIn[index];
 
-    vec3 impulse = vec3(0.0, 0.0, 0.0);
+    vec3 force = vec3(0.0, 0.0, 0.0);
 
-	impulse = clampedAdd(impulse, separationConstant * separation);
+	force = clampedAdd(force, separationConstant * separation);
 
-	impulse = clampedAdd(impulse, alignmentConstant * alignment);
+	force = clampedAdd(force, alignmentConstant * alignment);
 
-	impulse = clampedAdd(impulse, cohesionConstant * cohesion);
+	force = clampedAdd(force, cohesionConstant * cohesion);
 
-    return speed * normalize(velIn[index] + impulse * timeStep);
+    float speed = clamp(2 * posIn[index].z * g, 0.05, 0.25);
+
+    return speed * normalize(velIn[index] + force * timeStep);
 }
 
 float circular(float x)

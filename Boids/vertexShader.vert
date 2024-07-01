@@ -20,9 +20,9 @@ void main() {
 
     //gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
 
-    gl_Position = vec4(inPosition.xy, 0.5, 1.0);
+    gl_Position = vec4(inPosition.xy, 0.1, 1.0);
 
-    gl_PointSize = 3.0;
+    gl_PointSize = clamp(6.0 * inPosition.z, 1.0, 6.0);
 
     fragColor = vec3(1.0, 0.0, 0.0);
 
