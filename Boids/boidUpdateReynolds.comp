@@ -55,17 +55,12 @@ vec2 clampedAdd(vec2 u, vec2 v)
     if (dot(u, u) > 1.0)
         return normalize(u);
 
-    vec2 result = u + v;
-
-    if (length(result) < 1.0)
-        return result;
-
     if (dot(v, v) < 0.01)
         return u;
 
     float x = positiveQuadraticRoot(dot(v, v), 2 * dot(u, v), dot(u, u) - 1);
 
-    return u + x * v;
+    return u + min(x, 1) * v;
 }
 
 bool outsidePerception(vec2 relativePos, vec2 velSelf)
