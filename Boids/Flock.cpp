@@ -68,7 +68,7 @@ void Flock::bindObjects(CommandBuffer& commandBuffer) const
 std::vector<DeviceBuffer> Flock::makeBuffers() const
 {
 
-	VkDeviceSize bufferSize{ parameters.boidCount * sizeof(glm::vec2) };
+	VkDeviceSize bufferSize{ parameters.boidCount * sizeof(glm::vec3) };
 
 	VkBufferUsageFlags usage{
 		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT

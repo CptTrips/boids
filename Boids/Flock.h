@@ -12,13 +12,6 @@
 #include "DescriptorSetInfo.h"
 #include "FlockInitialiser.h"
 
-struct Boid
-{
-
-    glm::vec2 position;
-    glm::vec2 velocity;
-};
-
 struct PushConstants
 {
 

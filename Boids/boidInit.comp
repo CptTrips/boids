@@ -6,11 +6,11 @@ layout(std430, push_constant) uniform pushConstants {
 };
 
 layout(std430, binding = 0) buffer posInSSBO {
-    vec2 posIn[];
+    vec3 posIn[];
 };
 
 layout(std430, binding = 1) buffer velInSSBO {
-    vec2 velIn[];
+    vec3 velIn[];
 };
 
 layout (local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
@@ -23,7 +23,7 @@ void main()
     if (index >= flockSize)
         return;
 
-    //posIn[index] = vec2(-0.5, 0.5) + 0.5 * vec2(sin(3927 * index * FREQ), cos(51057 * index * FREQ));
-    posIn[index] = vec2(sin(3927 * index * FREQ), cos(51057 * index * FREQ));
+    posIn[index] = vec3(sin(3927 * index * FREQ), cos(51057 * index * FREQ), 0.5);
+
     velIn[index] = -posIn[index];
 }
