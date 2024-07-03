@@ -41,13 +41,13 @@ const std::vector<VkDescriptorSetLayoutBinding> Renderer::fragmentDescriptorBind
 const std::vector<VkVertexInputBindingDescription> Renderer::vertexInputBindingDescriptions
 {
 
-	{ 0, sizeof(glm::vec2), VK_VERTEX_INPUT_RATE_VERTEX }
+	{ 0, sizeof(glm::vec4), VK_VERTEX_INPUT_RATE_VERTEX }
 };
 
 const std::vector<VkVertexInputAttributeDescription> Renderer::vertexAttributeDescriptions
 {
 
-	{0, 0, VK_FORMAT_R32G32_SFLOAT, 0}
+	{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0}
 };
 
 Renderer::Renderer(RendererOptions options)
