@@ -1,5 +1,5 @@
 #version 450
-#define FREQ 0.2575181074 
+#define FREQ 6.28
 
 layout(std430, push_constant) uniform pushConstants {
     uint flockSize;
@@ -13,7 +13,7 @@ layout(std430, binding = 1) buffer velInSSBO {
     vec3 velIn[];
 };
 
-layout (local_size_x = 1024, local_size_y = 1, local_size_z = 1) in;
+layout (local_size_x = 128, local_size_y = 1, local_size_z = 1) in;
 
 void main()
 {
@@ -23,9 +23,9 @@ void main()
     if (index >= flockSize)
         return;
 
-    posIn[index] = vec3(sin(3927 * index * FREQ), cos(51057 * index * FREQ), 0.0);
+    float a = FREQ * float(index) / float(flockSize);
 
-    posIn[index] = vec3(posIn[index].xy, 1.0 + posIn[index].x * 0.32 + posIn[index].y * 0.412);
+    posIn[index] = vec3(sin(3927 * a), cos(51057 * a), 0.5 + 0.1 * sin(751072 * a));
 
-    velIn[index] = vec3(-posIn[index].xy, 0.0);
+    velIn[index] = vec3(-posIn[index].y, posIn[index].x, 0.5 - posIn[index].z);
 }

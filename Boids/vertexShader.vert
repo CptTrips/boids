@@ -22,7 +22,7 @@ void main() {
 
     gl_Position = vec4(inPosition.xy, 0.1, 1.0);
 
-    gl_PointSize = clamp(6.0 * inPosition.z, 1.0, 6.0);
+    gl_PointSize = 2.0 + inPosition.z;
 
     fragColor = vec3(1.0, 0.0, 0.0);
 
