@@ -45,6 +45,8 @@ struct ApplicationOptions
 class Application
 {
 
+    static constexpr float cohesion{ 1.f }, alignment{ 1.0f }, separation{ 1.0f };
+
     static constexpr uint32_t QUEUE_SIZE { 2 };
 
     VulkanContext context;
