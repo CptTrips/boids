@@ -8,7 +8,7 @@ const VkPushConstantRange FlockInitialiser::pushConstantRange
 {
     VK_SHADER_STAGE_COMPUTE_BIT,
     0,
-    sizeof(uint32_t) + 3 * sizeof(float)
+    sizeof(uint32_t)
 };
 
 const VkDescriptorSetLayoutBinding FlockInitialiser::posBinding
@@ -46,7 +46,7 @@ FlockInitialiser::FlockInitialiser(Device& device, uint32_t flockSize, const std
 uint32_t FlockInitialiser::calcGroupCount()
 {
 
-    return std::max(1u, flockSize / INVOCATIONS);
+    return std::max(1u, (flockSize + LOCAL_SIZE - 1) / LOCAL_SIZE);
 }
 
 void FlockInitialiser::bindObjects(CommandBuffer& commandBuffer)
@@ -99,7 +99,7 @@ void FlockInitialiser::initialise(CommandBuffer& commandBuffer, DeviceBuffer& po
 
     vkCmdPushConstants(commandBuffer.vk(), initPipeline.getLayout().vk(), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(uint32_t), &flockSize);
 
-    vkCmdPushConstants(commandBuffer.vk(), initPipeline.getLayout().vk(), VK_SHADER_STAGE_COMPUTE_BIT, sizeof(uint32_t), sizeof(float), &cohesion);
+    //vkCmdPushConstants(commandBuffer.vk(), initPipeline.getLayout().vk(), VK_SHADER_STAGE_COMPUTE_BIT, sizeof(uint32_t), sizeof(float), &cohesion);
 
     vkCmdDispatch(commandBuffer.vk(), groupCount, 1, 1);
 }

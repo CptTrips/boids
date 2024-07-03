@@ -13,7 +13,7 @@
 class FlockInitialiser
 {
 
-    static constexpr uint32_t INVOCATIONS{ 256 };
+    static constexpr uint32_t LOCAL_SIZE{ 128 };
 
     static const VkPushConstantRange pushConstantRange;
 
