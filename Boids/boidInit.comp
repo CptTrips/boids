@@ -23,7 +23,7 @@ void main()
     if (index >= flockSize)
         return;
 
-    float a = FREQ * float(index) / float(flockSize);
+    float a = FREQ * float(index);
 
     posIn[index] = vec3(sin(3927 * a), cos(51057 * a), 0.5 + 0.1 * sin(751072 * a));
 
