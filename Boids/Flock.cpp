@@ -65,15 +65,15 @@ void Flock::bindObjects(CommandBuffer& commandBuffer) const
 	descriptorSets[step % QUEUE_SIZE].bind(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline.getLayout());
 }
 
-std::vector<DeviceBuffer> Flock::makeBuffers() const
+std::vector<DeviceBuffer> Flock::makeBuffers(VkDeviceSize elementSize, VkBufferUsageFlags extraUsageFlags) const
 {
 
-	VkDeviceSize bufferSize{ parameters.boidCount * sizeof(glm::vec4) };
+	VkDeviceSize bufferSize{ parameters.boidCount * elementSize };
 
 	VkBufferUsageFlags usage{
 		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT
 		| VK_BUFFER_USAGE_TRANSFER_DST_BIT
-		| VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
+		| extraUsageFlags
 	};
 
 	std::vector<DeviceBuffer> buffers;
@@ -159,8 +159,8 @@ Flock::Flock(Device& device, PushConstants parameters, uint32_t queueSize, const
 	, device(device)
 	, descriptorPool(device, requiredDescriptorTypes, 100)
 	, groupCount(calcGroupCount())
-	, posBuffers(makeBuffers())
-	, velBuffers(makeBuffers())
+	, posBuffers(makeBuffers(sizeof(glm::vec4), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT))
+	, velBuffers(makeBuffers(sizeof(glm::vec4), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT))
 	, updateShaderDescriptorSetLayouts(makeUpdateShaderDescriptorSetLayouts())
 	, updateShader(device, ShaderReader(computeShaderPath).getCode(), VK_SHADER_STAGE_COMPUTE_BIT, updateShaderDescriptorSetLayouts, { pushConstantRange })
 	, pipeline(device, updateShader)

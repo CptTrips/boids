@@ -62,8 +62,6 @@ private:
 
     void bindObjects(CommandBuffer& commandBuffer) const;
 
-    std::vector<DeviceBuffer> makeBuffers() const;
-
     void initBuffers();
 
     uint32_t calcGroupCount();
@@ -71,6 +69,10 @@ private:
     std::vector<DescriptorSetInfo> makeDescriptorSetInfos() const;
 
     std::vector<DescriptorSetLayout> makeUpdateShaderDescriptorSetLayouts() const;
+
+protected:
+
+    std::vector<DeviceBuffer> makeBuffers(VkDeviceSize elementSize, VkBufferUsageFlags extraUsageFlags) const;
 
 public:
 
