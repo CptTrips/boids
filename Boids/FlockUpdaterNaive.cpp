@@ -47,13 +47,6 @@ const std::vector<VkDescriptorSetLayoutBinding> FlockUpdaterNaive::bindings
 	inPosBinding, inVelBinding, outPosBinding, outVelBinding
 };
 
-const VkPushConstantRange FlockUpdaterNaive::pushConstantRange
-{
-	VK_SHADER_STAGE_COMPUTE_BIT,
-	0,
-	sizeof(uint32_t) + 3 * sizeof(float)
-};
-
 std::vector<DescriptorSetInfo> FlockUpdaterNaive::makeDescriptorSetInfos(const std::vector<DeviceBuffer>& posBuffers, const std::vector<DeviceBuffer>& velBuffers) const
 {
 
@@ -105,14 +98,10 @@ FlockUpdaterNaive::FlockUpdaterNaive(
     const std::vector<DeviceBuffer>& velBuffers,
     PushConstants parameters
 )
-    : FlockUpdater()
-	, device(device)
-	, queueSize(posBuffers.size())
-	, shader(device, ShaderReader(computeShaderPath).getCode(), VK_SHADER_STAGE_COMPUTE_BIT, { bindings }, { pushConstantRange })
-	, groupCount(calcGroupCount(boidCount))
+    : FlockUpdater(device, posBuffers.size(), boidCount, LOCAL_SIZE, parameters)
+	, shader(device, ShaderReader(computeShaderPath).getCode(), VK_SHADER_STAGE_COMPUTE_BIT, { bindings }, { parameters.range })
 	, pipeline(device, shader)
 	, descriptorSets(descriptorPool.makeDescriptorSets(makeDescriptorSetInfos(posBuffers, velBuffers)))
-	, parameters(parameters)
 {
 }
 
@@ -124,10 +113,4 @@ void FlockUpdaterNaive::update(CommandBuffer& commandBuffer, uint32_t step)
     vkCmdPushConstants(commandBuffer.vk(), pipeline.getLayout().vk(), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(PushConstants), &parameters);
 
     vkCmdDispatch(commandBuffer.vk(), groupCount, 1, 1);
-}
-
-uint32_t FlockUpdaterNaive::calcGroupCount(uint32_t boidCount)
-{
-
-    return std::max(1u, (boidCount + LOCAL_SIZE - 1) / LOCAL_SIZE);
 }

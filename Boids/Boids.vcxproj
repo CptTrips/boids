@@ -143,7 +143,9 @@
     <ClCompile Include="FlockRenderer.cpp" />
     <ClCompile Include="FlockUpdater.cpp" />
     <ClCompile Include="FlockUpdaterNaive.cpp" />
+    <ClCompile Include="FlockUpdaterSweepAndPrune.cpp" />
     <ClCompile Include="OptionsParser.cpp" />
+    <ClCompile Include="PushConstants.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="VulkanContext.cpp" />
   </ItemGroup>
@@ -155,7 +157,9 @@
     <ClInclude Include="FlockRenderer.h" />
     <ClInclude Include="FlockUpdater.h" />
     <ClInclude Include="FlockUpdaterNaive.h" />
+    <ClInclude Include="FlockUpdaterSweepAndPrune.h" />
     <ClInclude Include="OptionsParser.h" />
+    <ClInclude Include="PushConstants.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="VulkanContext.h" />
   </ItemGroup>

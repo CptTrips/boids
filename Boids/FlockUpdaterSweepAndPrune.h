@@ -1,17 +1,13 @@
 #pragma once
 
-#include <string>
-
 #include "FlockUpdater.h"
 #include "Shader.h";
 #include "ComputePipeline.h"
 #include "DescriptorPool.h"
 #include "PushConstants.h"
 
-class FlockUpdaterNaive :
-    public FlockUpdater
+class FlockUpdaterSweepAndPrune : public FlockUpdater
 {
-
     static constexpr uint32_t LOCAL_SIZE{ 128 };
 
     static const VkDescriptorSetLayoutBinding inPosBinding, inVelBinding, outPosBinding, outVelBinding;
@@ -30,7 +26,9 @@ class FlockUpdaterNaive :
 
 public:
 
-    FlockUpdaterNaive(
+    PushConstants parameters;
+
+    FlockUpdaterSweepAndPrune(
         Device& device,
         const std::string& computeShaderPath,
         DescriptorPool& descriptorPool,
@@ -42,3 +40,4 @@ public:
 
     virtual void update(CommandBuffer& commandBuffer, uint32_t step);
 };
+
