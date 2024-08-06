@@ -55,10 +55,8 @@ Renderer::Renderer(RendererOptions options)
 	, QUEUE_SIZE(options.queueSize)
 	, pipelineBarriers(createPipelineBarriers())
 	, uiRenderer({ options.window, device, options.instance, options.swapChainFormat, options.swapChainSize })
-	, vertexDescriptorSetLayouts(makeVertexDescriptorSetLayouts())
-	, fragmentDescriptorSetLayouts(makeFragmentDescriptorSetLayouts())
-	, vertexShader(device, ShaderReader(options.vertexShaderPath).getCode(), VK_SHADER_STAGE_VERTEX_BIT, vertexDescriptorSetLayouts, vertexInputBindingDescriptions, vertexAttributeDescriptions, {})
-	, fragmentShader(device, ShaderReader(options.fragmentShaderPath).getCode(), VK_SHADER_STAGE_FRAGMENT_BIT, fragmentDescriptorSetLayouts, {})
+	, vertexShader(device, ShaderReader(options.vertexShaderPath).getCode(), VK_SHADER_STAGE_VERTEX_BIT, { vertexDescriptorBindings }, vertexInputBindingDescriptions, vertexAttributeDescriptions, {})
+	, fragmentShader(device, ShaderReader(options.fragmentShaderPath).getCode(), VK_SHADER_STAGE_FRAGMENT_BIT, { fragmentDescriptorBindings }, {})
 	, graphicsPipeline(device, options.swapChainFormat, vertexShader, fragmentShader)
 	, renderDomain{ options.swapChainExtent }
 {
@@ -81,26 +79,6 @@ std::vector<PipelineBarrier> Renderer::createPipelineBarriers() const
 	}
 
 	return pipelineBarriers;
-}
-
-std::vector<DescriptorSetLayout> Renderer::makeVertexDescriptorSetLayouts() const
-{
-
-	std::vector<DescriptorSetLayout> layouts;
-
-	layouts.emplace_back(device, vertexDescriptorBindings);
-
-	return layouts;
-}
-
-std::vector<DescriptorSetLayout> Renderer::makeFragmentDescriptorSetLayouts() const
-{
-
-	std::vector<DescriptorSetLayout> layouts;
-
-	layouts.emplace_back(device, fragmentDescriptorBindings);
-
-	return layouts;
 }
 
 void Renderer::recordRenderCommands(CommandBuffer& commandBuffer, UI& ui, DeviceBuffer& vertexBuffer, DeviceBuffer& indexBuffer, const Image & image)

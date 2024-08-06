@@ -31,11 +31,12 @@ const VkDescriptorSetLayoutBinding FlockInitialiser::velBinding
     nullptr
 };
 
+const std::vector<VkDescriptorSetLayoutBinding> FlockInitialiser::bindings{ posBinding, velBinding };
+
 FlockInitialiser::FlockInitialiser(Device& device, uint32_t flockSize, const std::string& initShaderPath, DescriptorPool& descriptorPool)
     : flockSize(flockSize)
     , groupCount(calcGroupCount())
-    , initShaderDescriptorSetLayouts(makeInitShaderDescriptorSetLayouts(device))
-    , initShader(device, ShaderReader(initShaderPath).getCode(), VK_SHADER_STAGE_COMPUTE_BIT, initShaderDescriptorSetLayouts, { pushConstantRange })
+    , initShader(device, ShaderReader(initShaderPath).getCode(), VK_SHADER_STAGE_COMPUTE_BIT, { bindings }, {pushConstantRange})
     , initPipeline(device, initShader)
     , descriptorPool(descriptorPool)
     , descriptorSets()
@@ -70,23 +71,10 @@ std::vector<DescriptorSetInfo> FlockInitialiser::makeDescriptorSetInfos(DeviceBu
 
     std::vector<DescriptorSetInfo> descriptorSetInfos;
 
-    descriptorSetInfos.emplace_back(descriptors, &(initShaderDescriptorSetLayouts[0]));
+    descriptorSetInfos.emplace_back(descriptors, &(initShader.getDescriptorSetLayouts()[0]));
 
     return descriptorSetInfos;
 }
-
-std::vector<DescriptorSetLayout> FlockInitialiser::makeInitShaderDescriptorSetLayouts(Device& device) const
-{
-
-	std::vector<DescriptorSetLayout> layouts;
-
-	std::vector<VkDescriptorSetLayoutBinding> bindings{ posBinding, velBinding };
-
-	layouts.emplace_back(device, bindings);
-
-	return layouts;
-}
-
 
 void FlockInitialiser::initialise(CommandBuffer& commandBuffer, DeviceBuffer& posBuffer, DeviceBuffer& velBuffer)
 {

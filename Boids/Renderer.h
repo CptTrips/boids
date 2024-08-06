@@ -84,8 +84,6 @@ private:
 
     UIRenderer uiRenderer;
 
-    std::vector<DescriptorSetLayout> vertexDescriptorSetLayouts, fragmentDescriptorSetLayouts;
-
     VertexShader vertexShader;
     Shader fragmentShader;
 
@@ -104,10 +102,6 @@ private:
     void setDomain(CommandBuffer& commandBuffer, VkExtent2D extent);
 
     void drawIndexed(CommandBuffer& commandBuffer, uint32_t indexCount) const;
-
-    std::vector<DescriptorSetLayout> makeVertexDescriptorSetLayouts() const;
-
-    std::vector<DescriptorSetLayout> makeFragmentDescriptorSetLayouts() const;
 
 public:
 

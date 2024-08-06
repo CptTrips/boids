@@ -19,9 +19,9 @@ class FlockInitialiser
 
     static const VkDescriptorSetLayoutBinding posBinding, velBinding;
 
-    const uint32_t flockSize, groupCount;
+	static const std::vector<VkDescriptorSetLayoutBinding> bindings;
 
-    std::vector<DescriptorSetLayout> initShaderDescriptorSetLayouts;
+    const uint32_t flockSize, groupCount;
 
     Shader initShader;
 
@@ -36,8 +36,6 @@ class FlockInitialiser
     void bindObjects(CommandBuffer& commandBuffer);
 
     std::vector<DescriptorSetInfo> makeDescriptorSetInfos(DeviceBuffer& posBuffer, DeviceBuffer& velBuffer) const;
-
-    std::vector<DescriptorSetLayout> makeInitShaderDescriptorSetLayouts(Device& device) const;
 
 public:
     FlockInitialiser(Device& device, uint32_t flockSize, const std::string& initShaderPath, DescriptorPool& descriptorPool);
