@@ -11,13 +11,8 @@
 #include "DescriptorPool.h"
 #include "DescriptorSetInfo.h"
 #include "FlockInitialiser.h"
+#include "FlockUpdaterNaive.h"
 
-struct PushConstants
-{
-
-    uint32_t boidCount;
-    float cohesion, alignment, separation;
-};
 
 class Flock
 {
@@ -28,13 +23,7 @@ public:
 
 private:
 
-    static constexpr uint32_t LOCAL_SIZE{ 128 };
-
     static const std::unordered_set<VkDescriptorType> requiredDescriptorTypes;
-
-    static const VkDescriptorSetLayoutBinding inPosBinding, inVelBinding, outPosBinding, outVelBinding;
-
-    static const VkPushConstantRange pushConstantRange;
 
     const uint32_t QUEUE_SIZE;
 
@@ -44,31 +33,15 @@ private:
 
     DescriptorPool descriptorPool;
 
-    uint32_t groupCount;
-
     std::vector<DeviceBuffer> posBuffers;
 
     std::vector<DeviceBuffer> velBuffers;
 
-    std::vector<DescriptorSetLayout> updateShaderDescriptorSetLayouts;
-
-    Shader updateShader;
-
-    ComputePipeline pipeline;
-
-    std::vector<DescriptorSet> descriptorSets;
-
     FlockInitialiser initialiser;
 
-    void bindObjects(CommandBuffer& commandBuffer) const;
+    FlockUpdaterNaive updater;
 
     void initBuffers();
-
-    uint32_t calcGroupCount();
-
-    std::vector<DescriptorSetInfo> makeDescriptorSetInfos() const;
-
-    std::vector<DescriptorSetLayout> makeUpdateShaderDescriptorSetLayouts() const;
 
 protected:
 
