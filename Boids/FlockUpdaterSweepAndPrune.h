@@ -20,9 +20,9 @@ class FlockUpdaterSweepAndPrune : public FlockUpdater
 
     ComputeWork sortWork, sweepWork, interactionWork;
 
-    std::vector<DeviceBuffer> makeIndexBuffers() const;
+    std::vector<DeviceBuffer> makeIndexBuffers(uint32_t boidCount) const;
 
-    std::vector<DeviceBuffer> makeInteractionBuffers() const;
+    std::vector<DeviceBuffer> makeInteractionBuffers(uint32_t boidCount) const;
 
     std::vector<std::vector<const DeviceBuffer*>> sortBufferTable(
         const std::vector<DeviceBuffer>& posBuffers,

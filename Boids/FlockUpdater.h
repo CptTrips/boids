@@ -11,7 +11,7 @@ class FlockUpdater
 {
 
 protected:
-    const Device& device;
+    Device& device;
 
     const uint32_t queueSize;
 

@@ -2,14 +2,40 @@
 
 #include "ShaderReader.h"
 
-std::vector<DeviceBuffer> FlockUpdaterSweepAndPrune::makeIndexBuffers() const
+std::vector<DeviceBuffer> FlockUpdaterSweepAndPrune::makeIndexBuffers(uint32_t boidCount) const
 {
-    return std::vector<DeviceBuffer>();
+
+	VkDeviceSize bufferSize{ boidCount * sizeof(uint32_t)};
+
+	VkBufferUsageFlags usage{
+		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT
+		| VK_BUFFER_USAGE_TRANSFER_DST_BIT
+	};
+
+    std::vector<DeviceBuffer> buffers;
+
+    for (int i{ 0 }; i < queueSize; i++)
+        buffers.emplace_back(bufferSize, usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, device);
+
+    return buffers;
 }
 
-std::vector<DeviceBuffer> FlockUpdaterSweepAndPrune::makeInteractionBuffers() const
+std::vector<DeviceBuffer> FlockUpdaterSweepAndPrune::makeInteractionBuffers(uint32_t boidCount) const
 {
-    return std::vector<DeviceBuffer>();
+
+	VkDeviceSize bufferSize{ boidCount * boidCount * sizeof(bool)};
+
+	VkBufferUsageFlags usage{
+		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT
+		| VK_BUFFER_USAGE_TRANSFER_DST_BIT
+	};
+
+    std::vector<DeviceBuffer> buffers;
+
+    for (int i{ 0 }; i < queueSize; i++)
+        buffers.emplace_back(bufferSize, usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, device);
+
+    return buffers;
 }
 
 std::vector<std::vector<const DeviceBuffer*>> FlockUpdaterSweepAndPrune::sortBufferTable(const std::vector<DeviceBuffer>& posBuffers, const std::vector<DeviceBuffer>& velBuffers) const
@@ -37,10 +63,10 @@ FlockUpdaterSweepAndPrune::FlockUpdaterSweepAndPrune(
     PushConstants parameters
 )
     : FlockUpdater(device, posBuffers.size(), boidCount, LOCAL_SIZE, parameters)
-    , sortedIndicesX(makeIndexBuffers())
-    , sortedIndicesY(makeIndexBuffers())
-    , sortedIndicesZ(makeIndexBuffers())
-    , interactions(makeInteractionBuffers())
+    , sortedIndicesX(makeIndexBuffers(boidCount))
+    , sortedIndicesY(makeIndexBuffers(boidCount))
+    , sortedIndicesZ(makeIndexBuffers(boidCount))
+    , interactions(makeInteractionBuffers(boidCount))
     , sortShader(device, shaderFolder)
     , sweepShader(device, shaderFolder)
     , interactionShader(device, shaderFolder)
