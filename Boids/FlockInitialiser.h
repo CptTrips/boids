@@ -7,38 +7,33 @@
 #include "CommandBuffer.h"
 #include "ComputePipeline.h"
 #include "DescriptorSetLayout.h"
-#include "DescriptorSet.h"
+#include "DescriptorSetPack.h"
 #include "DescriptorPool.h"
+#include "BoidInitShader.h"
 
 class FlockInitialiser
 {
 
     static constexpr uint32_t LOCAL_SIZE{ 128 };
 
-    static const VkPushConstantRange pushConstantRange;
-
-    static const VkDescriptorSetLayoutBinding posBinding, velBinding;
-
-	static const std::vector<VkDescriptorSetLayoutBinding> bindings;
-
     const uint32_t flockSize, groupCount;
 
-    Shader initShader;
+    Device& device;
+
+    BoidInitShader shader;
 
     ComputePipeline initPipeline;
 
     DescriptorPool& descriptorPool;
 
-    std::vector<DescriptorSet> descriptorSets;
+    DescriptorSetPack descriptorSets;
 
     uint32_t calcGroupCount();
 
     void bindObjects(CommandBuffer& commandBuffer);
 
-    std::vector<DescriptorSetInfo> makeDescriptorSetInfos(DeviceBuffer& posBuffer, DeviceBuffer& velBuffer) const;
-
 public:
-    FlockInitialiser(Device& device, uint32_t flockSize, const std::string& initShaderPath, DescriptorPool& descriptorPool);
+    FlockInitialiser(Device& device, uint32_t flockSize, const std::string& shaderFolder, DescriptorPool& descriptorPool);
 
     void initialise(CommandBuffer& commandBuffer, DeviceBuffer& posBuffer, DeviceBuffer& velBuffer);
 };

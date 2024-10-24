@@ -19,10 +19,6 @@ protected:
 
     uint32_t groupCount;
 
-    virtual std::vector<DescriptorSetInfo> makeDescriptorSetInfos(const std::vector<DeviceBuffer>& posBuffers, const std::vector<DeviceBuffer>& velBuffers) const = 0;
-
-    virtual void bindObjects(CommandBuffer& commandBuffer, DescriptorSet& descriptorSet) const = 0;
-
 public:
     PushConstants parameters;
 

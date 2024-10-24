@@ -49,7 +49,7 @@ protected:
 
 public:
 
-    Flock(Device& device, PushConstants parameters, uint32_t queueSize, const std::string& computeShaderPath, const std::string& initShaderPath);
+    Flock(Device& device, PushConstants parameters, uint32_t queueSize, const std::string& shaderFolder);
 
     void update(CommandBuffer& commandBuffer);
 

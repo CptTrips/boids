@@ -1,8 +1,10 @@
 #pragma once
 
 #include "FlockUpdater.h"
-#include "Shader.h";
-#include "ComputePipeline.h"
+#include "SortShader.h";
+#include "SweepShader.h"
+#include "InteractionShader.h"
+#include "ComputeWork.h"
 #include "DescriptorPool.h"
 #include "PushConstants.h"
 
@@ -10,19 +12,29 @@ class FlockUpdaterSweepAndPrune : public FlockUpdater
 {
     static constexpr uint32_t LOCAL_SIZE{ 128 };
 
-    static const VkDescriptorSetLayoutBinding inPosBinding, inVelBinding, outPosBinding, outVelBinding;
+    std::vector<DeviceBuffer> sortedIndicesX, sortedIndicesY, sortedIndicesZ, interactions;
 
-    static const std::vector<VkDescriptorSetLayoutBinding> bindings;
+    SortShader sortShader;
+    SweepShader sweepShader;
+    InteractionShader interactionShader;
 
-    Shader shader;
+    ComputeWork sortWork, sweepWork, interactionWork;
 
-    ComputePipeline pipeline;
+    std::vector<DeviceBuffer> makeIndexBuffers() const;
 
-    std::vector<DescriptorSet> descriptorSets;
+    std::vector<DeviceBuffer> makeInteractionBuffers() const;
 
-    virtual std::vector<DescriptorSetInfo> makeDescriptorSetInfos(const std::vector<DeviceBuffer>& posBuffers, const std::vector<DeviceBuffer>& velBuffers) const;
+    std::vector<std::vector<const DeviceBuffer*>> sortBufferTable(
+        const std::vector<DeviceBuffer>& posBuffers,
+        const std::vector<DeviceBuffer>& velBuffers
+    ) const;
 
-    virtual void bindObjects(CommandBuffer& commandBuffer, DescriptorSet& descriptorSet) const;
+    std::vector<std::vector<const DeviceBuffer*>> sweepBufferTable() const;
+
+    std::vector<std::vector<const DeviceBuffer*>> interactionBufferTable(
+        const std::vector<DeviceBuffer>& posBuffers,
+        const std::vector<DeviceBuffer>& velBuffers
+    ) const;
 
 public:
 
@@ -30,7 +42,7 @@ public:
 
     FlockUpdaterSweepAndPrune(
         Device& device,
-        const std::string& computeShaderPath,
+        const std::string& shaderFolder,
         DescriptorPool& descriptorPool,
         uint32_t boidCount,
         const std::vector<DeviceBuffer>& posBuffers,

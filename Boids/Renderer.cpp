@@ -15,49 +15,14 @@ const std::vector<PipelineStage> Renderer::pipelineStages
 	{VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_ACCESS_2_NONE, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT}
 };
 
-const std::vector<VkDescriptorSetLayoutBinding> Renderer::vertexDescriptorBindings
-{
-
-	{
-		0,
-		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-		1,
-		VK_SHADER_STAGE_VERTEX_BIT,
-		nullptr
-    }
-};
-
-const std::vector<VkDescriptorSetLayoutBinding> Renderer::fragmentDescriptorBindings
-{
-	{
-		1,
-		VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-		1,
-		VK_SHADER_STAGE_FRAGMENT_BIT,
-		nullptr
-    }
-};
-
-const std::vector<VkVertexInputBindingDescription> Renderer::vertexInputBindingDescriptions
-{
-
-	{ 0, sizeof(glm::vec4), VK_VERTEX_INPUT_RATE_VERTEX }
-};
-
-const std::vector<VkVertexInputAttributeDescription> Renderer::vertexAttributeDescriptions
-{
-
-	{0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0}
-};
-
 Renderer::Renderer(RendererOptions options)
 	: device(options.device)
 	, QUEUE_SIZE(options.queueSize)
 	, pipelineBarriers(createPipelineBarriers())
 	, uiRenderer({ options.window, device, options.instance, options.swapChainFormat, options.swapChainSize })
-	, vertexShader(device, ShaderReader(options.vertexShaderPath).getCode(), VK_SHADER_STAGE_VERTEX_BIT, { vertexDescriptorBindings }, vertexInputBindingDescriptions, vertexAttributeDescriptions, {})
-	, fragmentShader(device, ShaderReader(options.fragmentShaderPath).getCode(), VK_SHADER_STAGE_FRAGMENT_BIT, { fragmentDescriptorBindings }, {})
-	, graphicsPipeline(device, options.swapChainFormat, vertexShader, fragmentShader)
+	, vertexShader(device, options.shaderFolder)
+	, fragmentShader(device, options.shaderFolder)
+	, graphicsPipeline(device, vertexShader, fragmentShader, options.swapChainFormat)
 	, renderDomain{ options.swapChainExtent }
 {
 

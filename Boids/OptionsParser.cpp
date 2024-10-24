@@ -11,15 +11,9 @@ OptionsParser::OptionsParser(int argc, char* argv[])
 
 	const std::vector<std::string> optionTokens(argv + 1, argv + argc);
 
-	vertexShaderPath = optionTokens[0];
-	
-	fragmentShaderPath = optionTokens[1];
+	shaderFolder = optionTokens[0];
 
-	computeShaderPath = optionTokens[2];
-
-	initShaderPath = optionTokens[3];
-
-	int flockInt{ std::stoi(optionTokens[4]) };
+	int flockInt{ std::stoi(optionTokens[1]) };
 
 	if (flockInt < 0)
 		flockInt = 0;
@@ -27,26 +21,9 @@ OptionsParser::OptionsParser(int argc, char* argv[])
 	flockSize = static_cast<uint32_t>(flockInt);
 }
 
-std::string OptionsParser::getVertexShaderPath() const
+std::string OptionsParser::getShaderFolder() const
 {
-
-	return vertexShaderPath;
-}
-
-std::string OptionsParser::getFragmentShaderPath() const
-{
-
-	return fragmentShaderPath;
-}
-
-std::string OptionsParser::getComputeShaderPath() const
-{
-	return computeShaderPath;
-}
-
-std::string OptionsParser::getInitShaderPath() const
-{
-	return initShaderPath;
+	return shaderFolder;
 }
 
 uint32_t OptionsParser::getFlockSize() const

@@ -5,12 +5,9 @@
 class OptionsParser
 {
 
-    static constexpr int ARGUMENT_COUNT{ 6 };
+    static constexpr int ARGUMENT_COUNT{ 3 };
 
-    std::string vertexShaderPath;
-    std::string fragmentShaderPath;
-    std::string computeShaderPath;
-    std::string initShaderPath;
+    std::string shaderFolder;
 
     uint32_t flockSize;
 
@@ -18,13 +15,7 @@ public:
 
     OptionsParser(int argc, char* argv[]);
 
-    std::string getVertexShaderPath() const;
-
-    std::string getFragmentShaderPath() const;
-    
-    std::string getComputeShaderPath() const;
-
-    std::string getInitShaderPath() const;
+    std::string getShaderFolder() const;
 
     uint32_t getFlockSize() const;
 };

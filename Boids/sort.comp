@@ -1,0 +1,31 @@
+#version 450
+#define FREQ 6.28
+
+layout(std430, push_constant) uniform pushConstants {
+    uint flockSize;
+};
+
+layout(std430, binding = 0) buffer posInSSBO {
+    vec3 posIn[];
+};
+
+layout(std430, binding = 1) buffer velInSSBO {
+    vec3 velIn[];
+};
+
+layout (local_size_x = 128, local_size_y = 1, local_size_z = 1) in;
+
+void main()
+{
+
+    uint index = gl_GlobalInvocationID.x;
+
+    if (index >= flockSize)
+        return;
+
+    float a = FREQ * float(index);
+
+    posIn[index] = vec3(sin(3927 * a), cos(51057 * a), 0.5 + 0.1 * sin(751072 * a));
+
+    velIn[index] = vec3(-posIn[index].y, posIn[index].x, 0.5 - posIn[index].z);
+}

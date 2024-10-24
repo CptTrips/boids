@@ -47,15 +47,15 @@ void Flock::initBuffers()
 
 
 
-Flock::Flock(Device& device, PushConstants parameters, uint32_t queueSize, const std::string& computeShaderPath, const std::string& initShaderPath)
+Flock::Flock(Device& device, PushConstants parameters, uint32_t queueSize, const std::string& shaderFolder)
 	: parameters{ parameters }
 	, QUEUE_SIZE(queueSize)
 	, device(device)
 	, descriptorPool(device, requiredDescriptorTypes, 100)
 	, posBuffers(makeBuffers(sizeof(glm::vec4), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT))
 	, velBuffers(makeBuffers(sizeof(glm::vec4), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT))
-	, initialiser(device, parameters.boidCount, initShaderPath, descriptorPool)
-	, updater(device, computeShaderPath, descriptorPool, parameters.boidCount, posBuffers, velBuffers, parameters)
+	, initialiser(device, parameters.boidCount, shaderFolder, descriptorPool)
+	, updater(device, shaderFolder, descriptorPool, parameters.boidCount, posBuffers, velBuffers, parameters)
 {
 
 	initBuffers();

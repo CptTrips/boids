@@ -29,15 +29,12 @@ private:
 struct ApplicationOptions
 {
 
-    std::string vertexShaderPath, fragmentShaderPath, computeShaderPath, initShaderPath;
+    std::string shaderFolder;
 
     uint32_t flockSize;
 
     ApplicationOptions(OptionsParser& options)
-        : vertexShaderPath(options.getVertexShaderPath())
-        , fragmentShaderPath(options.getFragmentShaderPath())
-        , computeShaderPath(options.getComputeShaderPath())
-        , initShaderPath(options.getInitShaderPath())
+        : shaderFolder(options.getShaderFolder())
         , flockSize(options.getFlockSize())
     {}
 };

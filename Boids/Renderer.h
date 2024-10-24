@@ -16,7 +16,8 @@
 #include "PipelineBarrier.h"
 #include "Image.h"
 #include "GraphicsPipeline.h"
-#include "VertexShader.h"
+#include "BoidVertexShader.h"
+#include "FragmentShader.h"
 #include "DescriptorSetLayout.h"
 #include "Semaphore.h"
 
@@ -33,7 +34,7 @@ struct RendererOptions
 
     uint32_t queueSize;
 
-    std::string vertexShaderPath, fragmentShaderPath;
+    std::string shaderFolder;
 
     VkFormat swapChainFormat;
 
@@ -44,8 +45,7 @@ struct RendererOptions
     RendererOptions(
         VulkanContext& context
         , uint32_t queueSize
-        , std::string vertexShaderPath
-        , std::string fragmentShaderPath
+        , std::string shaderFolder
         , const SwapChain& swapChain
     )
         : window(context.window)
@@ -53,8 +53,7 @@ struct RendererOptions
         , surface(context.surface)
         , device(context.device)
         , queueSize(queueSize)
-        , vertexShaderPath(vertexShaderPath)
-        , fragmentShaderPath(fragmentShaderPath)
+        , shaderFolder(shaderFolder)
         , swapChainFormat(swapChain.getFormat())
         , swapChainSize(static_cast<uint32_t>(swapChain.getImageCount()))
         , swapChainExtent(swapChain.getExtent())
@@ -72,20 +71,14 @@ private:
 
     static const std::vector<PipelineStage> pipelineStages;
 
-    static const std::vector<VkDescriptorSetLayoutBinding> vertexDescriptorBindings, fragmentDescriptorBindings;
-
-    static const std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
-
-    static const std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptions;
-
     const uint32_t QUEUE_SIZE;
 
     const std::vector<PipelineBarrier> pipelineBarriers;
 
     UIRenderer uiRenderer;
 
-    VertexShader vertexShader;
-    Shader fragmentShader;
+    BoidVertexShader vertexShader;
+    FragmentShader fragmentShader;
 
     GraphicsPipeline graphicsPipeline;
 

@@ -136,31 +136,49 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="BoidInitShader.cpp" />
     <ClCompile Include="Boids.cpp" />
     <ClCompile Include="BoidsUI.cpp" />
+    <ClCompile Include="BoidUpdateNaiveShader.cpp" />
+    <ClCompile Include="BoidVertexShader.cpp" />
+    <ClCompile Include="ComputeWork.cpp" />
+    <ClCompile Include="DescriptorSetPack.cpp" />
     <ClCompile Include="Flock.cpp" />
     <ClCompile Include="FlockInitialiser.cpp" />
     <ClCompile Include="FlockRenderer.cpp" />
     <ClCompile Include="FlockUpdater.cpp" />
     <ClCompile Include="FlockUpdaterNaive.cpp" />
     <ClCompile Include="FlockUpdaterSweepAndPrune.cpp" />
+    <ClCompile Include="FragmentShader.cpp" />
+    <ClCompile Include="InteractionShader.cpp" />
     <ClCompile Include="OptionsParser.cpp" />
     <ClCompile Include="PushConstants.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="SortShader.cpp" />
+    <ClCompile Include="SweepShader.cpp" />
     <ClCompile Include="VulkanContext.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="BoidInitShader.h" />
     <ClInclude Include="BoidsUI.h" />
+    <ClInclude Include="BoidUpdateNaiveShader.h" />
+    <ClInclude Include="BoidVertexShader.h" />
+    <ClInclude Include="ComputeWork.h" />
+    <ClInclude Include="DescriptorSetPack.h" />
     <ClInclude Include="Flock.h" />
     <ClInclude Include="FlockInitialiser.h" />
     <ClInclude Include="FlockRenderer.h" />
     <ClInclude Include="FlockUpdater.h" />
     <ClInclude Include="FlockUpdaterNaive.h" />
     <ClInclude Include="FlockUpdaterSweepAndPrune.h" />
+    <ClInclude Include="FragmentShader.h" />
+    <ClInclude Include="InteractionShader.h" />
     <ClInclude Include="OptionsParser.h" />
     <ClInclude Include="PushConstants.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="SortShader.h" />
+    <ClInclude Include="SweepShader.h" />
     <ClInclude Include="VulkanContext.h" />
   </ItemGroup>
   <ItemGroup>
@@ -233,6 +251,17 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslc %(FullPath) -o %(Filename).spv -g</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute shader compilation</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute shader compilation</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).spv</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).spv</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="sort.comp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glslc %(FullPath) -o %(Filename).spv</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glslc %(FullPath) -o %(Filename).spv</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).spv</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).spv</Outputs>
     </CustomBuild>

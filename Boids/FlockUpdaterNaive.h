@@ -7,6 +7,8 @@
 #include "ComputePipeline.h"
 #include "DescriptorPool.h"
 #include "PushConstants.h"
+#include "DescriptorSetPack.h"
+#include "BoidUpdateNaiveShader.h"
 
 class FlockUpdaterNaive :
     public FlockUpdater
@@ -14,25 +16,21 @@ class FlockUpdaterNaive :
 
     static constexpr uint32_t LOCAL_SIZE{ 128 };
 
-    static const VkDescriptorSetLayoutBinding inPosBinding, inVelBinding, outPosBinding, outVelBinding;
-
-    static const std::vector<VkDescriptorSetLayoutBinding> bindings;
-
-    Shader shader;
+    BoidUpdateNaiveShader shader;
 
     ComputePipeline pipeline;
 
-    std::vector<DescriptorSet> descriptorSets;
+    DescriptorSetPack descriptorSets;
 
-    virtual std::vector<DescriptorSetInfo> makeDescriptorSetInfos(const std::vector<DeviceBuffer>& posBuffers, const std::vector<DeviceBuffer>& velBuffers) const;
+    std::vector<std::vector<const DeviceBuffer*>> makeBufferPointers(const std::vector<DeviceBuffer>& posBuffers, const std::vector<DeviceBuffer>& velBuffers) const;
 
-    virtual void bindObjects(CommandBuffer& commandBuffer, DescriptorSet& descriptorSet) const;
+    void bindObjects(CommandBuffer& commandBuffer, DescriptorSet& descriptorSet) const;
 
 public:
 
     FlockUpdaterNaive(
         Device& device,
-        const std::string& computeShaderPath,
+        const std::string& shaderFolder,
         DescriptorPool& descriptorPool,
         uint32_t boidCount,
         const std::vector<DeviceBuffer>& posBuffers,
