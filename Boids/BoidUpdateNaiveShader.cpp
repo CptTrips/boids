@@ -49,7 +49,15 @@ const std::vector<VkDescriptorSetLayoutBinding> BoidUpdateNaiveShader::bindings
 	inPosBinding, inVelBinding, outPosBinding, outVelBinding
 };
 
-const std::vector<VkPushConstantRange> BoidUpdateNaiveShader::pushConstantRanges;
+const std::vector<VkPushConstantRange> BoidUpdateNaiveShader::pushConstantRanges
+{
+	{
+
+        VK_SHADER_STAGE_COMPUTE_BIT,
+        0,
+        sizeof(uint32_t) + 3 * sizeof(float)
+    }
+};
 
 BoidUpdateNaiveShader::BoidUpdateNaiveShader(const Device & device, std::string shaderFolder)
 	: Shader(
