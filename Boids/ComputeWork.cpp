@@ -25,7 +25,7 @@ ComputeWork::ComputeWork(
     , localSize(localSize)
 	, groupCount(groupCount)
 	, parameters(parameters)
-	, descriptorSets(device, descriptorPool, shader.bindings, buffers)
+    , descriptorSets(device, descriptorPool, shader.bindings, buffers)
     , pipeline(device, shader)
 {
 }

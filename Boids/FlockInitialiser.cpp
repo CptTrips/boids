@@ -11,7 +11,6 @@ FlockInitialiser::FlockInitialiser(Device& device, uint32_t flockSize, const std
     , shader(device, shaderFolder)
     , descriptorPool(descriptorPool)
     , initPipeline(device, shader)
-    , descriptorSets(device, descriptorPool, shader.bindings, {{nullptr, nullptr}})
 {
 
 }
@@ -22,7 +21,7 @@ uint32_t FlockInitialiser::calcGroupCount()
     return std::max(1u, (flockSize + LOCAL_SIZE - 1) / LOCAL_SIZE);
 }
 
-void FlockInitialiser::bindObjects(CommandBuffer& commandBuffer)
+void FlockInitialiser::bindObjects(CommandBuffer& commandBuffer, DescriptorSetPack&& descriptorSets)
 {
 
     initPipeline.bind(commandBuffer);
@@ -35,9 +34,7 @@ void FlockInitialiser::initialise(CommandBuffer& commandBuffer, DeviceBuffer& po
 
     float cohesion{ 0.0 };
 
-    descriptorSets = DescriptorSetPack(device, descriptorPool, shader.bindings, { {&posBuffer, &velBuffer} });
-
-    bindObjects(commandBuffer);
+    bindObjects(commandBuffer, DescriptorSetPack(device, descriptorPool, { shader.bindings }, { { {&posBuffer, &velBuffer}} }));
 
     vkCmdPushConstants(commandBuffer.vk(), initPipeline.getLayout().vk(), VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(uint32_t), &flockSize);
 

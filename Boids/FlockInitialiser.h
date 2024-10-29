@@ -26,11 +26,9 @@ class FlockInitialiser
 
     DescriptorPool& descriptorPool;
 
-    DescriptorSetPack descriptorSets;
-
     uint32_t calcGroupCount();
 
-    void bindObjects(CommandBuffer& commandBuffer);
+    void bindObjects(CommandBuffer& commandBuffer, DescriptorSetPack&& descriptorSets);
 
 public:
     FlockInitialiser(Device& device, uint32_t flockSize, const std::string& shaderFolder, DescriptorPool& descriptorPool);

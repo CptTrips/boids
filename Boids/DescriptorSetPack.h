@@ -9,7 +9,7 @@
 class DescriptorSetPack
 {
 
-    std::vector<DescriptorSetLayout> descriptorSetLayouts;
+    DescriptorSetLayout descriptorSetLayout;
 
     std::vector<DescriptorSet> descriptorSets;
 
@@ -27,8 +27,8 @@ public:
 
     DescriptorSet& operator[](uint32_t i);
 
-    const std::vector<DescriptorSetLayout>& getDescriptorSetLayouts() const;
+    const DescriptorSetLayout& getDescriptorSetLayout() const;
 
-    std::vector<VkDescriptorSetLayout> getDescriptorSetLayoutsVk() const;
+    VkDescriptorSetLayout getDescriptorSetLayoutVk() const;
 };
 

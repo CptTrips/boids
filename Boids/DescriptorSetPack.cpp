@@ -11,15 +11,18 @@ std::vector<DescriptorSetLayout> DescriptorSetPack::createDescriptorSetLayouts(c
     return descriptorSetLayouts;
 }
 
-std::vector<DescriptorSetInfo> DescriptorSetPack::makeDescriptorSetInfos(const std::vector<VkDescriptorSetLayoutBinding>& bindings, const std::vector<std::vector<const DeviceBuffer*>>& buffers) const
+std::vector<DescriptorSetInfo> DescriptorSetPack::makeDescriptorSetInfos(
+    const std::vector<VkDescriptorSetLayoutBinding>& bindings,
+    const std::vector<std::vector<const DeviceBuffer*>>& buffers
+) const
 {
 
     std::vector<DescriptorSetInfo> descriptorSetInfos;
 
-    std::vector<Descriptor> descriptors;
-
     for (uint32_t i{ 0 }; i < buffers.size(); i++)
     {
+
+        std::vector<Descriptor> descriptors;
 
         for (uint32_t j{ 0 }; j < bindings.size(); j++)
         {
@@ -28,6 +31,11 @@ std::vector<DescriptorSetInfo> DescriptorSetPack::makeDescriptorSetInfos(const s
 
             descriptors.emplace_back(bindings[j], buffer);
         }
+
+        descriptorSetInfos.emplace_back(
+            descriptors,
+            &descriptorSetLayout
+        );
 
     }
 
@@ -40,7 +48,7 @@ DescriptorSetPack::DescriptorSetPack(
     const std::vector<VkDescriptorSetLayoutBinding>& bindings,
     const std::vector<std::vector<const DeviceBuffer*>>& buffers
 )
-    : descriptorSetLayouts(createDescriptorSetLayouts(device, { bindings }))
+    : descriptorSetLayout(device, bindings)
     , descriptorSets(descriptorPool.makeDescriptorSets(makeDescriptorSetInfos(bindings, buffers)))
 {
 }
@@ -51,19 +59,14 @@ DescriptorSet& DescriptorSetPack::operator[](uint32_t i)
     return descriptorSets[i];
 }
 
-const std::vector<DescriptorSetLayout>& DescriptorSetPack::getDescriptorSetLayouts() const
+const DescriptorSetLayout& DescriptorSetPack::getDescriptorSetLayout() const
 {
 
-	return descriptorSetLayouts;
+	return descriptorSetLayout;
 }
 
-std::vector<VkDescriptorSetLayout> DescriptorSetPack::getDescriptorSetLayoutsVk() const
+VkDescriptorSetLayout DescriptorSetPack::getDescriptorSetLayoutVk() const
 {
 
-	std::vector<VkDescriptorSetLayout> layouts;
-
-	for (size_t i{ 0 }; i < descriptorSetLayouts.size(); i++)
-		layouts.push_back(descriptorSetLayouts[i].vk());
-
-	return layouts;
+    return descriptorSetLayout.vk();
 }
