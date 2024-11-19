@@ -2,11 +2,9 @@
 
 #define timeStep 0.0167
 
-#define perceptionRange 0.1
+#define perceptionRange 0.2
 
 #define perceptionFOV radians(120)
-
-#define EPS 0.002
 
 #define speed 0.2
 
