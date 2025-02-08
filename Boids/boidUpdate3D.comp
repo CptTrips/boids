@@ -44,7 +44,7 @@ vec3 clampedAdd(vec3 u, vec3 v)
     if (dot(u, u) > 1.0)
         return normalize(u);
 
-    if (dot(v, v) < 0.01)
+    if (dot(v, v) < 0.0001)
         return u;
 
     float x = positiveQuadraticRoot(dot(v, v), 2 * dot(u, v), dot(u, u) - 1);
@@ -56,6 +56,12 @@ bool outsidePerception(vec3 relativePos, vec3 velSelf)
 {
 
     return (length(relativePos) > perceptionRange) || (dot(normalize(relativePos), normalize(velSelf)) < cos(perceptionFOV));
+}
+
+vec3 confinement(vec3 pos)
+{
+
+    return 2.0 * speed * (step(vec3(0.9), -pos) - step(vec3(0.9), pos));
 }
 
 vec3 velocityUpdate(uint index)
@@ -87,17 +93,9 @@ vec3 velocityUpdate(uint index)
         }
     }
 
-    if (localPop > 0)
-    {
+    vec3 cohesion = (localPop > 0) ? localAvgPos / localPop : vec3(0.0);
 
-		localAvgPos /= localPop;
-
-		localAvgVel /= localPop;
-	}
-
-    vec3 cohesion = localAvgPos;
-
-    vec3 alignment = localAvgVel - velIn[index];
+    vec3 alignment = (localPop > 0) ? localAvgVel - velIn[index] : vec3(0.0);
 
     vec3 force = vec3(0.0, 0.0, 0.0);
 
@@ -106,6 +104,8 @@ vec3 velocityUpdate(uint index)
 	force = clampedAdd(force, alignmentConstant * alignment);
 
 	force = clampedAdd(force, cohesionConstant * cohesion);
+
+    force += confinement(posIn[index]);
 
     return speed * normalize(velIn[index] + force * timeStep);
 }
