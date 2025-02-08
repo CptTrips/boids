@@ -3,10 +3,10 @@
 #include "Vertex.h"
 
 Application::Application(ApplicationOptions options)
-    : context()
+    : context(1000, 1000)
 	, swapChain(context.device, context.surface, context.window, QUEUE_SIZE + 2)
 	, renderer(context, QUEUE_SIZE, swapChain, options.shaderFolder, options.flockSize)
-	, flock(context.device, { options.flockSize, cohesion, alignment, separation}, QUEUE_SIZE, options.shaderFolder)
+	, flock(context.device, { options.flockSize, initialCohesion, initialAlignment, initialSeparation, initialPerceptionRange}, QUEUE_SIZE, options.shaderFolder)
 	, ui({ &(flock.parameters.cohesion), &(flock.parameters.alignment), &(flock.parameters.separation) })
 	, fences()
 	, freeImageSemaphores()

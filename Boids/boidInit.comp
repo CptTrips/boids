@@ -15,6 +15,19 @@ layout(std430, binding = 1) buffer velInSSBO {
 
 layout (local_size_x = 128, local_size_y = 1, local_size_z = 1) in;
 
+uint pcg_hash(uint x)
+{
+    uint state = x * 747796405u + 2891336453u;
+    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+    return (word >> 22u) ^ word;
+}
+
+float castRescale(uint x)
+{
+
+    return 2.0 * (float(x) / 4294967296.0) - 1.0;
+}
+
 void main()
 {
 
@@ -23,9 +36,15 @@ void main()
     if (index >= flockSize)
         return;
 
-    float a = FREQ * float(index);
+    uint u1 = pcg_hash(index);
+    uint u2 = pcg_hash(u1);
+    uint u3 = pcg_hash(u2);
 
-    posIn[index] = vec3(sin(3927 * a), cos(51057 * a), 0.5 + 0.1 * sin(751072 * a));
+    posIn[index] = vec3(castRescale(u1), castRescale(u2), castRescale(u3));
 
-    velIn[index] = vec3(-posIn[index].y, posIn[index].x, 0.5 - posIn[index].z);
+    u1 = pcg_hash(u3);
+    u2 = pcg_hash(u1);
+    u3 = pcg_hash(u2);
+
+    velIn[index] = vec3(castRescale(u1), castRescale(u2), castRescale(u3));
 }

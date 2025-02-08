@@ -42,7 +42,7 @@ struct ApplicationOptions
 class Application
 {
 
-    static constexpr float cohesion{ 1.f }, alignment{ 1.0f }, separation{ 1.0f };
+    static constexpr float initialCohesion{ 0.f }, initialAlignment{ 0.0f }, initialSeparation{ 0.0f }, initialPerceptionRange{ 0.05f };
 
     static constexpr uint32_t QUEUE_SIZE { 3 };
 

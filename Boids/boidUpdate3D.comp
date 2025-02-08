@@ -2,8 +2,6 @@
 
 #define timeStep 0.0167
 
-#define perceptionRange 0.2
-
 #define perceptionFOV radians(120)
 
 #define speed 0.2
@@ -14,6 +12,7 @@ layout(std430, push_constant) uniform pushConstants {
     float cohesionConstant;
     float alignmentConstant;
     float separationConstant;
+    float perceptionRange;
 };
 
 layout(std430, binding = 0) readonly buffer posInSSBO {

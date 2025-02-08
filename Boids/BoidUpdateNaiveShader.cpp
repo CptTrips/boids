@@ -2,6 +2,8 @@
 
 #include "ShaderReader.h"
 
+#include "PushConstants.h"
+
 const std::string BoidUpdateNaiveShader::shaderFileName = "boidUpdate3D.spv";
 
 static const VkDescriptorSetLayoutBinding inPosBinding
@@ -55,7 +57,7 @@ const std::vector<VkPushConstantRange> BoidUpdateNaiveShader::pushConstantRanges
 
         VK_SHADER_STAGE_COMPUTE_BIT,
         0,
-        sizeof(uint32_t) + 3 * sizeof(float)
+        sizeof(PushConstants)
     }
 };
 
