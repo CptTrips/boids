@@ -9,10 +9,8 @@ Application::Application(ApplicationOptions options)
 	, renderer(context, QUEUE_SIZE, swapChain, options.shaderFolder, options.flockSize)
 	, fences()
 	, freeImageSemaphores()
-	, computeCompleteSemaphores()
 	, renderCompleteSemaphores()
-	, computeCommandBuffers(context.device.makeCommandBuffers(QUEUE_SIZE, false))
-	, renderCommandBuffers(context.device.makeCommandBuffers(QUEUE_SIZE, false))
+	, commandBuffers(context.device.makeCommandBuffers(QUEUE_SIZE, false))
 	, computeTimer(context.device, QUEUE_SIZE)
 	, drawTimer(context.device, QUEUE_SIZE)
 	, frameTimer(context.device, QUEUE_SIZE)
@@ -26,8 +24,6 @@ Application::Application(ApplicationOptions options)
 		fences.emplace_back(device);
 
 		freeImageSemaphores.emplace_back(device);
-
-		computeCompleteSemaphores.emplace_back(device);
 
 		renderCompleteSemaphores.emplace_back(device);
 	}
@@ -51,16 +47,14 @@ void Application::run()
 
         VkSemaphore freeImageSemaphore{ freeImageSemaphores[index].vk() };
 
-		Semaphore& computeSemaphore{ computeCompleteSemaphores[index] };
-
         uint32_t imageIndex{ swapChain.getFreeImageIndex(VK_NULL_HANDLE, freeImageSemaphore)};
 
         Image image(swapChain.getImage(imageIndex));
 
-        CommandBuffer& computeCommands{ computeCommandBuffers[index]};
-        CommandBuffer& renderCommands{ renderCommandBuffers[index]};
+        CommandBuffer& commandBuffer{ commandBuffers[index]};
 
-		computeCommands.reset();
+		commandBuffer.reset();
+
 		if (frame > QUEUE_SIZE)
 		{
 
@@ -77,35 +71,27 @@ void Application::run()
 			perfLog.log(computeTime, drawTime, frameTime);
 		}
 
-		frameTimer.startTimer(computeCommands, index, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+		frameTimer.startTimer(commandBuffer, index, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
 
-		computeTimer.startTimer(computeCommands, index, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+		computeTimer.startTimer(commandBuffer, index, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
 
-        flock.update(computeCommands);
+        flock.update(commandBuffer);
 
-		computeCommands.addSignalSemaphore(computeSemaphore.vk());
+		computeTimer.stopTimer(commandBuffer, index, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
 
-		computeTimer.stopTimer(computeCommands, index, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+		drawTimer.startTimer(commandBuffer, index, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
 
-		context.device.submitCommandBuffer(computeCommands);
+		renderer.recordRenderCommands(commandBuffer, flock, image, ui);
 
-		renderCommands.reset();
+		drawTimer.stopTimer(commandBuffer, index, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
-		drawTimer.startTimer(renderCommands, index, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
+		frameTimer.stopTimer(commandBuffer, index, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
-		renderCommands.addWaitSemaphore(computeSemaphore.vk(), VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
+        commandBuffer.addWaitSemaphore(freeImageSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
-		renderer.recordRenderCommands(renderCommands, flock, image, ui);
+        commandBuffer.addSignalSemaphore(renderCompleteSemaphores[index].vk());
 
-		drawTimer.stopTimer(renderCommands, index, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
-
-		frameTimer.stopTimer(renderCommands, index, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
-
-        renderCommands.addWaitSemaphore(freeImageSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
-
-        renderCommands.addSignalSemaphore(renderCompleteSemaphores[index].vk());
-
-        context.device.submitCommandBuffer(renderCommands, fence.vk());
+        context.device.submitCommandBuffer(commandBuffer, fence.vk());
 
         // Queue rendered frame
         std::vector<VkSemaphore> swapChainWaitSemaphores{ renderCompleteSemaphores[index].vk() };

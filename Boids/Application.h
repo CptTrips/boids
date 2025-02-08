@@ -57,9 +57,9 @@ class Application
     
     std::vector<Fence> fences;
 
-    std::vector<Semaphore> freeImageSemaphores, computeCompleteSemaphores, renderCompleteSemaphores;
+    std::vector<Semaphore> freeImageSemaphores, renderCompleteSemaphores;
 
-    std::vector<CommandBuffer> computeCommandBuffers, renderCommandBuffers;
+    std::vector<CommandBuffer> commandBuffers;
 
     uint32_t frame{ 0 };
 
