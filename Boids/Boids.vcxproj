@@ -136,6 +136,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="BoidFragmentShader.cpp" />
     <ClCompile Include="BoidInitShader.cpp" />
     <ClCompile Include="Boids.cpp" />
     <ClCompile Include="BoidsUI.cpp" />
@@ -149,17 +150,15 @@
     <ClCompile Include="FlockUpdater.cpp" />
     <ClCompile Include="FlockUpdaterNaive.cpp" />
     <ClCompile Include="FlockUpdaterSweepAndPrune.cpp" />
-    <ClCompile Include="FragmentShader.cpp" />
     <ClCompile Include="InteractionShader.cpp" />
     <ClCompile Include="OptionsParser.cpp" />
     <ClCompile Include="PushConstants.cpp" />
-    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="SortShader.cpp" />
     <ClCompile Include="SweepShader.cpp" />
-    <ClCompile Include="VulkanContext.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="BoidFragmentShader.h" />
     <ClInclude Include="BoidInitShader.h" />
     <ClInclude Include="BoidsUI.h" />
     <ClInclude Include="BoidUpdateNaiveShader.h" />
@@ -172,14 +171,11 @@
     <ClInclude Include="FlockUpdater.h" />
     <ClInclude Include="FlockUpdaterNaive.h" />
     <ClInclude Include="FlockUpdaterSweepAndPrune.h" />
-    <ClInclude Include="FragmentShader.h" />
     <ClInclude Include="InteractionShader.h" />
     <ClInclude Include="OptionsParser.h" />
     <ClInclude Include="PushConstants.h" />
-    <ClInclude Include="Renderer.h" />
     <ClInclude Include="SortShader.h" />
     <ClInclude Include="SweepShader.h" />
-    <ClInclude Include="VulkanContext.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="vertexShader.vert">

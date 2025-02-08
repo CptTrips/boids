@@ -34,7 +34,6 @@ BoidVertexShader::BoidVertexShader(const Device& device, std::string shaderFolde
     : VertexShader(
         device,
         ShaderReader(shaderFolder + shaderFileName).getCode(),
-        VK_SHADER_STAGE_VERTEX_BIT,
         bindings,
         pushConstantRanges,
         vertexInputBindingDescriptions,

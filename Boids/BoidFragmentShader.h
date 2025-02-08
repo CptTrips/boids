@@ -1,14 +1,8 @@
 #pragma once
+#include "FragmentShader.h"
 
-#include <string>
-#include <vector>
-
-#include <vulkan/vulkan.h>
-
-#include "Device.h"
-#include "Shader.h"
-
-class FragmentShader : public Shader
+class BoidFragmentShader :
+    public FragmentShader
 {
 
     static const std::string shaderFileName;
@@ -18,7 +12,6 @@ class FragmentShader : public Shader
     static const std::vector<VkPushConstantRange> pushConstantRanges;
 
 public:
-    FragmentShader(const Device& device, std::string shaderFolder);
-    
+    BoidFragmentShader(const Device& device, std::string shaderFolder);
 };
 

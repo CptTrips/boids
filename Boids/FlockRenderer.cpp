@@ -33,9 +33,11 @@ void FlockRenderer::updateVertices()
     */
 }
 
-FlockRenderer::FlockRenderer(RendererOptions options, uint32_t flockSize)
-    : Renderer(options)
-    , indexBuffer(flockSize * sizeof(uint32_t), VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, options.device)
+FlockRenderer::FlockRenderer(VulkanContext& context, uint32_t queueSize, const SwapChain& swapChain, std::string shaderFolder, uint32_t flockSize)
+    : indexBuffer(flockSize * sizeof(uint32_t), VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, context.device)
+    , vertexShader(context.device, shaderFolder)
+    , fragmentShader(context.device, shaderFolder)
+    , renderer(RendererOptions(context, queueSize, swapChain, vertexShader, fragmentShader))
 {
 
 	std::vector<uint32_t> indices(flockSize);
@@ -51,5 +53,5 @@ void FlockRenderer::recordRenderCommands(CommandBuffer& commandBuffer, UI& ui, F
 
     updateVertices();
 
-    Renderer::recordRenderCommands(commandBuffer, ui, flock.getPositionBuffer(), indexBuffer, image);
+    renderer.recordRenderCommands(commandBuffer, ui, flock.getPositionBuffer(), indexBuffer, image);
 }

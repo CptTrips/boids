@@ -5,7 +5,7 @@
 Application::Application(ApplicationOptions options)
     : context()
 	, swapChain(context.device, context.surface, context.window, QUEUE_SIZE + 2)
-	, renderer(RendererOptions(context, QUEUE_SIZE, options.shaderFolder, swapChain), options.flockSize)
+	, renderer(context, QUEUE_SIZE, swapChain, options.shaderFolder, options.flockSize)
 	, flock(context.device, { options.flockSize, cohesion, alignment, separation}, QUEUE_SIZE, options.shaderFolder)
 	, ui({ &(flock.parameters.cohesion), &(flock.parameters.alignment), &(flock.parameters.separation) })
 	, fences()
