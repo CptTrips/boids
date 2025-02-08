@@ -10,6 +10,6 @@ struct PushConstants
     static const VkPushConstantRange range;
 
     uint32_t boidCount;
-    float cohesion, alignment, separation, perceptionRange;
+    float cohesion, alignment, separation, perceptionRange, speed;
 };
 

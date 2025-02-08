@@ -36,7 +36,7 @@ FlockUpdaterNaive::FlockUpdaterNaive(
 	uint32_t boidCount,
     const std::vector<DeviceBuffer>& posBuffers,
     const std::vector<DeviceBuffer>& velBuffers,
-    PushConstants parameters
+    PushConstants& parameters
 )
     : FlockUpdater(device, posBuffers.size(), boidCount, LOCAL_SIZE, parameters)
 	, shader(device, shaderFolder)

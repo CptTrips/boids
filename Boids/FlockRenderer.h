@@ -5,6 +5,8 @@
 #include "Flock.h"
 #include "BoidVertexShader.h"
 #include "BoidFragmentShader.h"
+#include "UIRenderer.h"
+#include "BoidsUI.h"
 
 class FlockRenderer
 {
@@ -20,13 +22,11 @@ class FlockRenderer
 
     Renderer renderer;
 
-    void bindObjects(CommandBuffer& commandBuffer);
-
-    void updateVertices();
+    UIRenderer uiRenderer;
 
 public:
     FlockRenderer(VulkanContext& context, uint32_t queueSize, const SwapChain& swapChain, std::string shaderFolder, uint32_t flockSize);
 
-    void recordRenderCommands(CommandBuffer& commandBuffer, UI& ui, Flock& flock, const Image& image);
+    void recordRenderCommands(CommandBuffer& commandBuffer, Flock& flock, const Image& image, UI& ui);
 };
 

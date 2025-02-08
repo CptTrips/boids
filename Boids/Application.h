@@ -6,6 +6,7 @@
 #include "VulkanContext.h"
 #include "FlockRenderer.h"
 #include "BoidsUI.h"
+#include "UIRenderer.h"
 #include "Flock.h"
 
 #include "Fence.h"
@@ -42,31 +43,31 @@ struct ApplicationOptions
 class Application
 {
 
-    static constexpr float initialCohesion{ 0.f }, initialAlignment{ 0.0f }, initialSeparation{ 0.0f }, initialPerceptionRange{ 0.05f };
+    static constexpr float initialCohesion{ 0.f }, initialAlignment{ 0.0f }, initialSeparation{ 0.0f }, initialPerceptionRange{ 0.05f }, initialSpeed{ 0.2f };
 
-    static constexpr uint32_t QUEUE_SIZE { 3 };
+    static constexpr uint32_t QUEUE_SIZE { 2 };
 
     VulkanContext context;
 
     SwapChain swapChain;
 
-    FlockRenderer renderer;
-
     Flock flock;
 
-    BoidsUI ui;
-
+    FlockRenderer renderer;
+    
     std::vector<Fence> fences;
 
-    std::vector<Semaphore> freeImageSemaphores, renderCompleteSemaphores;
+    std::vector<Semaphore> freeImageSemaphores, computeCompleteSemaphores, renderCompleteSemaphores;
 
-    std::vector<CommandBuffer> commandBuffers;
+    std::vector<CommandBuffer> computeCommandBuffers, renderCommandBuffers;
 
     uint32_t frame{ 0 };
 
     GPUTimer computeTimer, drawTimer, frameTimer;
 
     PerformanceLog perfLog;
+
+    BoidsUI ui;
 
 public:
 

@@ -4,15 +4,13 @@
 
 #define perceptionFOV radians(120)
 
-#define speed 0.2
-
-
 layout(std430, push_constant) uniform pushConstants {
     uint flockSize;
     float cohesionConstant;
     float alignmentConstant;
     float separationConstant;
     float perceptionRange;
+    float speed;
 };
 
 layout(std430, binding = 0) readonly buffer posInSSBO {

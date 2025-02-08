@@ -5,7 +5,7 @@
 struct UIState
 {
 
-    float *cohesion, *alignment, *separation;
+    float *cohesion, *alignment, *separation, *perceptionRange, *speed;
 
     float frametime, computeTime, drawTime;
 };

@@ -27,7 +27,7 @@ public:
         uint32_t queueSize,
         uint32_t boidCount,
         uint32_t localSize,
-        PushConstants parameters
+        PushConstants& parameters
     );
 
     virtual void update(CommandBuffer& commandBuffer, uint32_t step) = 0;

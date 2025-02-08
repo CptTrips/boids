@@ -35,7 +35,7 @@ public:
         uint32_t boidCount,
         const std::vector<DeviceBuffer>& posBuffers,
         const std::vector<DeviceBuffer>& velBuffers,
-        PushConstants parameters
+        PushConstants& parameters
     );
 
     virtual void update(CommandBuffer& commandBuffer, uint32_t step);

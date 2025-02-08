@@ -15,6 +15,10 @@ void BoidsUI::drawBoids()
 
     ImGui::SliderFloat("Separation", state.separation, 0.0, 5.0);
 
+    ImGui::SliderFloat("Perception Range", state.perceptionRange, 0.0, 3.0);
+
+    ImGui::SliderFloat("Speed", state.speed, 0.0, 1.0);
+
     ImGui::End();
 }
 

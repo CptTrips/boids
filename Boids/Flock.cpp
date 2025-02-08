@@ -10,10 +10,10 @@ const std::unordered_set<VkDescriptorType> Flock::requiredDescriptorTypes{
 };
 
 	
-std::vector<DeviceBuffer> Flock::makeBuffers(VkDeviceSize elementSize, VkBufferUsageFlags extraUsageFlags) const
+std::vector<DeviceBuffer> Flock::makeBuffers(VkDeviceSize elementSize, VkBufferUsageFlags extraUsageFlags, uint32_t boidCount) const
 {
 
-	VkDeviceSize bufferSize{ parameters.boidCount * elementSize };
+	VkDeviceSize bufferSize{ boidCount * elementSize };
 
 	VkBufferUsageFlags usage{
 		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT
@@ -48,12 +48,11 @@ void Flock::initBuffers()
 
 
 Flock::Flock(Device& device, PushConstants parameters, uint32_t queueSize, const std::string& shaderFolder)
-	: parameters{ parameters }
-	, QUEUE_SIZE(queueSize)
+	: QUEUE_SIZE(queueSize)
 	, device(device)
 	, descriptorPool(device, requiredDescriptorTypes, 100)
-	, posBuffers(makeBuffers(sizeof(glm::vec4), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT))
-	, velBuffers(makeBuffers(sizeof(glm::vec4), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT))
+	, posBuffers(makeBuffers(sizeof(glm::vec4), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, parameters.boidCount))
+	, velBuffers(makeBuffers(sizeof(glm::vec4), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, parameters.boidCount))
 	, initialiser(device, parameters.boidCount, shaderFolder, descriptorPool)
 	, updater(device, shaderFolder, descriptorPool, parameters.boidCount, posBuffers, velBuffers, parameters)
 {
@@ -78,5 +77,11 @@ DeviceBuffer& Flock::getPositionBuffer()
 uint32_t Flock::getBoidCount() const
 {
 
-	return parameters.boidCount;
+	return updater.parameters.boidCount;
+}
+
+PushConstants& Flock::getPushConstants()
+{
+
+	return updater.parameters;
 }

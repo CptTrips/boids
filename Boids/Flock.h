@@ -19,7 +19,7 @@ class Flock
 
 public:
 
-    PushConstants parameters;
+    //PushConstants parameters;
 
 private:
 
@@ -45,7 +45,7 @@ private:
 
 protected:
 
-    std::vector<DeviceBuffer> makeBuffers(VkDeviceSize elementSize, VkBufferUsageFlags extraUsageFlags) const;
+    std::vector<DeviceBuffer> makeBuffers(VkDeviceSize elementSize, VkBufferUsageFlags extraUsageFlags, uint32_t boidCount) const;
 
 public:
 
@@ -56,5 +56,7 @@ public:
     DeviceBuffer& getPositionBuffer();
 
     uint32_t getBoidCount() const;
+
+    PushConstants& getPushConstants();
 };
 
